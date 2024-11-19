@@ -1,5 +1,6 @@
 import express from "express";
 import { addBanner, getBanners, getBannerById, deleteBanner, updateBanner} from "../controllers/banner.controller.js";
+import {auth} from "../middleware/auth.js"
 import isAuthenticated from "../auth/isAuthenticated.js";
 import { singleUpload } from "../middleware/multer.js";
 

@@ -3,31 +3,67 @@ import { Contact } from '../models/contact.model.js'; // Adjust path based on yo
 // Add a new contact
 export const addContact = async (req, res) => {
     try {
-        const { name, phone, email, subject, message } = req.body;
+        const { name, phone, email, subject, message, isContactClose } = req.body;
 
         // Validate required fields
         if (!name || !phone || !email || !message) {
-            return res.status(400).json({ message: 'Please provide all required fields', success: false });
+            return res.status(400).json({ 
+                message: 'Please provide all required fields', 
+                success: false 
+            });
         }
 
-        // Create a new contact document
+        // Check if a contact with the same email or phone already exists
+        const existingContact = await Contact.findOne({
+            $or: [{ email }, { phone }]
+        });
+
+        if (existingContact) {
+            // Update the existing contact
+            existingContact.name = name;
+            existingContact.phone = phone;
+            existingContact.email = email;
+            existingContact.subject = subject;
+            existingContact.message = message;
+            existingContact.isContactClose = isContactClose;
+
+            // Save the updated contact
+            await existingContact.save();
+
+            return res.status(200).json({ 
+                message: 'Contact updated successfully', 
+                contact: existingContact, 
+                success: true 
+            });
+        }
+
+        // Create a new contact document if no existing contact is found
         const newContact = new Contact({
             name,
             phone,
             email,
             subject,
             message,
+            isContactClose
         });
 
-        // Save the contact document to the database
+        // Save the new contact to the database
         await newContact.save();
 
-        res.status(201).json({ newContact, success: true });
+        res.status(201).json({ 
+            message: 'Contact added successfully', 
+            contact: newContact, 
+            success: true 
+        });
     } catch (error) {
-        console.error('Error adding contact:', error);
-        res.status(500).json({ message: 'Failed to add contact', success: false });
+        console.error('Error adding/updating contact:', error);
+        res.status(500).json({ 
+            message: 'Failed to process the request', 
+            success: false 
+        });
     }
 };
+
 
 // Get all contacts
 export const getContacts = async (req, res) => {
@@ -40,5 +76,21 @@ export const getContacts = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Failed to fetch contacts', success: false });
+    }
+};
+
+export const updateContact = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, phone, email, subject, message, isContactClose } = req.body;
+
+        const updatedData = {name, phone, email, subject, message, isContactClose};
+
+        const contact = await Contact.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
+        if (!contact) return res.status(404).json({ message: "Contact not found!", success: false });
+        return res.status(200).json({ contact, success: true });
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({ message: error.message, success: false });
     }
 };

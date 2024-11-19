@@ -5,7 +5,7 @@ import getDataUri from "../utils/datauri.js";
 // Add a new subservice
 export const addSubService = async (req, res) => {
     try {
-        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage, howWorks, others, serviceId, subServiceEnabled } = req.body;
+        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage, howWorks,beforeAfterGallary, others, serviceId, subServiceEnabled } = req.body;
 
         // Validate base64 image data
         if (!subServiceImage || !subServiceImage.startsWith('data:image') || !beforeAfterImage || !beforeAfterImage.startsWith('data:image')) {
@@ -18,6 +18,7 @@ export const addSubService = async (req, res) => {
             subServiceImage, // Store the base64 image data
             beforeAfterImage, // Store the before/after base64 image data
             howWorks,
+            beforeAfterGallary,
             others,
             serviceId,
             subServiceEnabled
@@ -60,7 +61,7 @@ export const getSubServiceById = async (req, res) => {
 export const updateSubService = async (req, res) => {
     try {
         const { id } = req.params;
-        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage, howWorks, others, serviceId, subServiceEnabled } = req.body;
+        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage, howWorks,beforeAfterGallary, others, serviceId, subServiceEnabled } = req.body;
 
         // Validate base64 image data
         if (subServiceImage && !subServiceImage.startsWith('data:image') || beforeAfterImage && !beforeAfterImage.startsWith('data:image')) {
@@ -73,6 +74,7 @@ export const updateSubService = async (req, res) => {
             ...(subServiceImage && { subServiceImage }), // Only update image if new image is provided
             ...(beforeAfterImage && { beforeAfterImage }), // Only update before/after image if new image is provided
             howWorks,
+            beforeAfterGallary,
             others,
             serviceId,
             subServiceEnabled

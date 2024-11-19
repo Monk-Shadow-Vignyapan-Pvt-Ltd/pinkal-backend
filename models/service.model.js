@@ -27,6 +27,10 @@ const serviceSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.Mixed,  // Use Mixed for flexible structure (JSON-like object)
         required: false
     },
+    beforeAfterGallary: {
+        type: mongoose.Schema.Types.Mixed,  // Use Mixed for flexible structure (JSON-like object)
+        required: false
+    },
     categoryId: { 
         type: mongoose.Schema.Types.ObjectId, 
         required:true

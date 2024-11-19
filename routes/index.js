@@ -7,6 +7,7 @@ import blogRoute from "./blog.route.js";
 import contactRoute from "./contact.route.js";
 import subServiceRoute from "./sub_service.route.js";
 import contactFollowupRoute from "./contact_followup.route.js";
+import authRoute from "./auth.route.js";
 
 const routes = {
   categoryRoute,
@@ -17,7 +18,8 @@ const routes = {
   blogRoute,
   contactRoute,
   subServiceRoute,
-  contactFollowupRoute
+  contactFollowupRoute,
+  authRoute
 };
 
 export default routes;

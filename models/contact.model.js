@@ -28,6 +28,10 @@ const contactSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    isContactClose:{
+        type: Boolean,
+        required: true,
+    }
 }, {
     timestamps: true, // Adds createdAt and updatedAt fields automatically
 });

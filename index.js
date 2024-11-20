@@ -40,6 +40,8 @@ app.use("/api/v1/blogs", routes.blogRoute);
 app.use("/api/v1/contacts", routes.contactRoute);
 app.use("/api/v1/subServices", routes.subServiceRoute);
 app.use("/api/v1/followups", routes.contactFollowupRoute);
+app.use("/api/v1/surveys", routes.surveyRoute);
+app.use("/api/v1/survey-answers", routes.surveyAnswerRoute);
 
 app.listen(PORT, () => {
     console.log(`server running at port ${PORT}`);

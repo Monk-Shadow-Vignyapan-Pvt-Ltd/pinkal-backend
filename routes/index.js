@@ -8,6 +8,8 @@ import contactRoute from "./contact.route.js";
 import subServiceRoute from "./sub_service.route.js";
 import contactFollowupRoute from "./contact_followup.route.js";
 import authRoute from "./auth.route.js";
+import surveyRoute from "./survey.route.js";
+import surveyAnswerRoute from "./survey_answer.route.js";
 
 const routes = {
   categoryRoute,
@@ -19,7 +21,9 @@ const routes = {
   contactRoute,
   subServiceRoute,
   contactFollowupRoute,
-  authRoute
+  authRoute,
+  surveyRoute,
+  surveyAnswerRoute
 };
 
 export default routes;

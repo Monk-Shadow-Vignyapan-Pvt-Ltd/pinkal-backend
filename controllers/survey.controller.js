@@ -3,7 +3,7 @@ import { Survey } from '../models/survey.model.js';
 // Add a new survey
 export const addSurvey = async (req, res) => {
     try {
-        const { name, options, type, surveyMendatory } = req.body;
+        const { name, options, type, surveyMendatory,surveyEnabled } = req.body;
 
         const existingSurvey = await Survey.findOne({ name });
           if (existingSurvey) {
@@ -13,7 +13,7 @@ export const addSurvey = async (req, res) => {
           }
         
         // Validate the input
-        if (!name || !options || !type || typeof surveyMendatory !== 'boolean') {
+        if (!name || !options || !type || typeof surveyMendatory !== 'boolean' || typeof surveyEnabled !== 'boolean') {
             return res.status(400).json({ message: 'Invalid input data', success: false });
         }
 
@@ -24,7 +24,8 @@ export const addSurvey = async (req, res) => {
             name,
             options,
             type,
-            surveyMendatory
+            surveyMendatory,
+            surveyEnabled
         });
 
         // Save the survey to the database
@@ -65,10 +66,10 @@ export const getSurveyById = async (req, res) => {
 export const updateSurvey = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, options, type, surveyMendatory } = req.body;
+        const { name, options, type, surveyMendatory,surveyEnabled } = req.body;
 
         // Validate the input
-        if (name === undefined || options === undefined || type === undefined || typeof surveyMendatory !== 'boolean') {
+        if (name === undefined || options === undefined || type === undefined || typeof surveyMendatory !== 'boolean' || typeof surveyEnabled !== 'boolean') {
             return res.status(400).json({ message: 'Invalid input data', success: false });
         }
 
@@ -76,7 +77,8 @@ export const updateSurvey = async (req, res) => {
             name,
             options,
             type,
-            surveyMendatory
+            surveyMendatory,
+            surveyEnabled
         };
 
         // Update the survey in the database

@@ -10,6 +10,8 @@ import contactFollowupRoute from "./contact_followup.route.js";
 import authRoute from "./auth.route.js";
 import surveyRoute from "./survey.route.js";
 import surveyAnswerRoute from "./survey_answer.route.js";
+import statusRoute from "./status.route.js";
+import seoRoute from "./seo.route.js";
 
 const routes = {
   categoryRoute,
@@ -23,7 +25,9 @@ const routes = {
   contactFollowupRoute,
   authRoute,
   surveyRoute,
-  surveyAnswerRoute
+  surveyAnswerRoute,
+  statusRoute,
+  seoRoute
 };
 
 export default routes;

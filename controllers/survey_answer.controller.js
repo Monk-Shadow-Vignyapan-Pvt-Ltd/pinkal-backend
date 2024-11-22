@@ -65,7 +65,7 @@ export const addSurveyAnswer = async (req, res) => {
 export const getSurveyAnswers = async (req, res) => {
     try {
         const surveyAnswers = await SurveyAnswer.find();
-        if (!surveyAnswers || surveyAnswers.length === 0) {
+        if (!surveyAnswers ) {
             return res.status(404).json({ message: 'No survey answers found', success: false });
         }
         return res.status(200).json({ surveyAnswers, success: true });

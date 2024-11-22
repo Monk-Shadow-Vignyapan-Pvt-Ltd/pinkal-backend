@@ -69,7 +69,7 @@ export const addContact = async (req, res) => {
 export const getContacts = async (req, res) => {
     try {
         const contacts = await Contact.find();
-        if (!contacts || contacts.length === 0) {
+        if (!contacts ) {
             return res.status(404).json({ message: "No contacts found", success: false });
         }
         return res.status(200).json({ contacts });

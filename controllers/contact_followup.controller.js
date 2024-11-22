@@ -28,7 +28,7 @@ export const addFollowup = async (req, res) => {
 export const getFollowups = async (req, res) => {
     try {
         const followups = await ContactFollowup.find();
-        if (!followups.length) {
+        if (!followups) {
             return res.status(404).json({ message: 'No follow-ups found', success: false });
         }
         return res.status(200).json({ followups, success: true });

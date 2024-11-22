@@ -2,10 +2,94 @@ import { User } from '../models/user.model.js';
 import jwt from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
 
+
+export const  initializeDefaultUser = async () => {
+  try {
+    const email = 'admin@gmail.com';
+    const password= 'admin123';
+    const username = 'admin';
+    const isAdmin = true;
+    const roles = [
+      {
+          "name": "Users",
+          "actions": {
+              "permission": true,
+          }
+      },
+      {
+          "name": "Banner",
+          "actions": {
+              "permission": true,
+          }
+      },
+      {
+          "name": "Category",
+          "actions": {
+              "permission": true,
+          }
+      },
+      {
+          "name": "Service",
+          "actions": {
+              "permission": true,
+          }
+      },
+      {
+          "name": "Testimonial",
+          "actions": {
+              "permission": true,
+          }
+      },
+      {
+          "name": "FAQs",
+          "actions": {
+              "permission": true,
+          }
+      },
+      {
+          "name": "Blogs",
+          "actions": {
+              "permission": true,
+          }
+      },
+      {
+          "name": "Contact",
+          "actions": {
+              "permission": true,
+          }
+      },
+      {
+          "name": "Survey",
+          "actions": {
+              "permission": true,
+          }
+      },
+      {
+          "name": "Seo",
+          "actions": {
+              "permission": true,
+          }
+      }
+  ]
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return ;
+    }
+
+    const hashedPassword = await bcryptjs.hash(password, 8);
+    const newUser = new User({ email, password: hashedPassword, username,isAdmin,roles });
+
+    const savedUser = await newUser.save();
+    res.json(savedUser);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // Signup Controller
 export const addUser = async (req, res) => {
   try {
-    const { email, password, username, avatar ,isAdmin} = req.body;
+    const { email, password, username, avatar ,isAdmin,roles} = req.body;
     if (!email || !password || !username ) {
       return res.status(400).json({ msg: "Please enter all the fields" });
     }
@@ -27,7 +111,7 @@ export const addUser = async (req, res) => {
     if (avatar && !avatar.startsWith('data:image')) {
         return res.status(400).json({ message: 'Invalid image data', success: false });
       }
-    const newUser = new User({ email, password: hashedPassword, username, avatar,isAdmin });
+    const newUser = new User({ email, password: hashedPassword, username, avatar,isAdmin,roles });
 
     const savedUser = await newUser.save();
     res.json(savedUser);
@@ -90,6 +174,7 @@ export const getUser = async (req, res) => {
       username: user.username,
       id: user._id,
       avatar: user.avatar,
+      roles:user.roles
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -110,7 +195,7 @@ export const getUsers = async (req, res) => {
 export const updateUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const { email, password, username, avatar ,isAdmin} = req.body;
+        const { email, password, username, avatar ,isAdmin,roles} = req.body;
 
         // Validate base64 image data if provided
         if (!email || !password || !username ) {
@@ -121,13 +206,7 @@ export const updateUser = async (req, res) => {
               .status(400)
               .json({ msg: "Password should be at least 6 characters" });
           }
-      
-          const existingUser = await User.findOne({ email });
-          if (existingUser) {
-            return res
-              .status(400)
-              .json({ msg: "User with the same email already exists" });
-          }
+    
       
           const hashedPassword = await bcryptjs.hash(password, 8);
       
@@ -135,7 +214,7 @@ export const updateUser = async (req, res) => {
               return res.status(400).json({ message: 'Invalid image data', success: false });
             }
 
-        const updatedData = { email, password: hashedPassword, username, avatar,isAdmin };
+        const updatedData = { email, password: hashedPassword, username, avatar,isAdmin,roles };
 
         const user = await User.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
         if (!user) return res.status(404).json({ message: "User not found!", success: false });

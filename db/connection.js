@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { initializeDefaultStatuses } from "../controllers/status.controller.js";
+import { initializeDefaultUser } from "../controllers/auth.controller.js";
 
 // Example: Your Mongoose model for the collection you want to query
 import { SubService } from "../models/sub_service.model.js";
@@ -10,6 +11,7 @@ const connectDB = async () => {
         console.log('mongodb connected successfully');
         
         // Initialize default statuses (if required)
+        await initializeDefaultUser();
         await initializeDefaultStatuses();
 
         // Extract data from the specific collection

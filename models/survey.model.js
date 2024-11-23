@@ -8,7 +8,11 @@ const surveySchema = new mongoose.Schema({
     surveyEnabled:{
         type:Boolean,
         required:true
-     }
+     },
+     userId:{
+        type: mongoose.Schema.Types.ObjectId, 
+          required:false
+      }
     
 }, { timestamps: true });
 

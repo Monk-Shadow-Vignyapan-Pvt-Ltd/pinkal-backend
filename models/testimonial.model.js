@@ -14,7 +14,11 @@ const testimonialSchema = new mongoose.Schema({
     showForAll : {
         type: Boolean,  // Boolean field to indicate if a sub-service exists
         required: true,
-    }
+    },
+    userId:{
+        type: mongoose.Schema.Types.ObjectId, 
+          required:false
+      }
     
 }, { timestamps: true });
 

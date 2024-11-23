@@ -6,7 +6,7 @@ import multer from 'multer';
 
 export const addBanner = async (req, res) => {
     try {
-        const { imageBase64 } = req.body;
+        const { imageBase64,userId } = req.body;
 
         // Validate base64 data (make sure it's an image)
         if (!imageBase64 || !imageBase64.startsWith('data:image')) {
@@ -16,6 +16,7 @@ export const addBanner = async (req, res) => {
         // Save the base64 image string to MongoDB (or handle storage as needed)
         const banner = new Banner({
             image: imageBase64, // Store the base64 string in MongoDB
+            userId
         });
 
         await banner.save();
@@ -54,7 +55,7 @@ export const updateBanner = async (req, res) => {
     try {
         const { id } = req.params;
         const updatedData = req.body;
-        const { imageBase64 } = req.body;
+        const { imageBase64,userId } = req.body;
 
         // Validate base64 data (make sure it's an image)
         if (!imageBase64 || !imageBase64.startsWith('data:image')) {
@@ -62,6 +63,7 @@ export const updateBanner = async (req, res) => {
         }
         const banner = await Banner.findByIdAndUpdate(id, {
             image: imageBase64, // Store the base64 string in MongoDB
+            userId
         }, { new: true, runValidators: true });
         if (!banner) return res.status(404).json({ message: "Banner not found!", success: false });
         return res.status(200).json({ banner, success: true });

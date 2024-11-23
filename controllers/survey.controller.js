@@ -3,7 +3,7 @@ import { Survey } from '../models/survey.model.js';
 // Add a new survey
 export const addSurvey = async (req, res) => {
     try {
-        const { name, options, type, surveyMendatory,surveyEnabled } = req.body;
+        const { name, options, type, surveyMendatory,surveyEnabled,userId } = req.body;
 
         const existingSurvey = await Survey.findOne({ name });
           if (existingSurvey) {
@@ -25,7 +25,8 @@ export const addSurvey = async (req, res) => {
             options,
             type,
             surveyMendatory,
-            surveyEnabled
+            surveyEnabled,
+            userId
         });
 
         // Save the survey to the database
@@ -66,7 +67,7 @@ export const getSurveyById = async (req, res) => {
 export const updateSurvey = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, options, type, surveyMendatory,surveyEnabled } = req.body;
+        const { name, options, type, surveyMendatory,surveyEnabled ,userId} = req.body;
 
         // Validate the input
         if (name === undefined || options === undefined || type === undefined || typeof surveyMendatory !== 'boolean' || typeof surveyEnabled !== 'boolean') {
@@ -78,7 +79,8 @@ export const updateSurvey = async (req, res) => {
             options,
             type,
             surveyMendatory,
-            surveyEnabled
+            surveyEnabled,
+            userId
         };
 
         // Update the survey in the database

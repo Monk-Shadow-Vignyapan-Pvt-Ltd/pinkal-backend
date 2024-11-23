@@ -5,7 +5,7 @@ import getDataUri from "../utils/datauri.js";
 // Add a new subservice
 export const addSubService = async (req, res) => {
     try {
-        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage, howWorks,beforeAfterGallary, others, serviceId, subServiceEnabled } = req.body;
+        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage, howWorks,beforeAfterGallary, others, serviceId, subServiceEnabled,userId } = req.body;
 
         // Validate base64 image data
         if (!subServiceImage || !subServiceImage.startsWith('data:image') || !beforeAfterImage || !beforeAfterImage.startsWith('data:image')) {
@@ -21,7 +21,8 @@ export const addSubService = async (req, res) => {
             beforeAfterGallary,
             others,
             serviceId,
-            subServiceEnabled
+            subServiceEnabled,
+            userId
         });
 
         await subService.save();
@@ -75,7 +76,7 @@ export const getSubServicesByServiceId = async (req, res) => {
 export const updateSubService = async (req, res) => {
     try {
         const { id } = req.params;
-        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage, howWorks,beforeAfterGallary, others, serviceId, subServiceEnabled } = req.body;
+        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage, howWorks,beforeAfterGallary, others, serviceId, subServiceEnabled,userId } = req.body;
 
         // Validate base64 image data
         if (subServiceImage && !subServiceImage.startsWith('data:image') || beforeAfterImage && !beforeAfterImage.startsWith('data:image')) {
@@ -91,7 +92,8 @@ export const updateSubService = async (req, res) => {
             beforeAfterGallary,
             others,
             serviceId,
-            subServiceEnabled
+            subServiceEnabled,
+            userId
         };
 
         const subService = await SubService.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });

@@ -31,7 +31,11 @@ const contactSchema = new mongoose.Schema({
     isContactClose:{
         type: Boolean,
         required: true,
-    }
+    },
+    userId:{
+        type: mongoose.Schema.Types.ObjectId, 
+          required:false
+      }
 }, {
     timestamps: true, // Adds createdAt and updatedAt fields automatically
 });

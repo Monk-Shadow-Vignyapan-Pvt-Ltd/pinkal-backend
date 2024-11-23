@@ -6,7 +6,7 @@ import getDataUri from "../utils/datauri.js";  // Same as above
 // Add a new testimonial
 export const addTestimonial = async (req, res) => {
     try {
-        const { name, description, imageBase64, serviceId, showForAll } = req.body;
+        const { name, description, imageBase64, serviceId, showForAll,userId } = req.body;
 
 
         // Validate base64 image data
@@ -20,7 +20,8 @@ export const addTestimonial = async (req, res) => {
             description,
             image: imageBase64,  // Store the base64 string (or you could upload to Cloudinary)
             serviceId,
-            showForAll
+            showForAll,
+            userId
         });
 
         await testimonial.save();
@@ -60,7 +61,7 @@ export const getTestimonialById = async (req, res) => {
 export const updateTestimonial = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, imageBase64, serviceId, showForAll } = req.body;
+        const { name, description, imageBase64, serviceId, showForAll,userId } = req.body;
 
         // Validate base64 image data if provided
         if (imageBase64 && !imageBase64.startsWith('data:image')) {
@@ -72,6 +73,7 @@ export const updateTestimonial = async (req, res) => {
             description,
             serviceId,
             showForAll,
+            userId,
             ...(imageBase64 && { image: imageBase64 }) // Update image only if a new image is provided
         };
 

@@ -18,6 +18,10 @@ const blogSchema = new mongoose.Schema({
         type: String, // Store image as base64 or use a URL reference
         required: true,
       },
+    userId:{
+        type: mongoose.Schema.Types.ObjectId, 
+          required:false
+      }
     
 }, { timestamps: true });
 

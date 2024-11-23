@@ -3,7 +3,7 @@ import { Faq } from "../models/faq.model.js";
 // Add a new FAQ
 export const addFaq = async (req, res) => {
     try {
-        const { question, answer, serviceId, showForAll } = req.body;
+        const { question, answer, serviceId, showForAll,userId } = req.body;
         
         // Validate required fields
         if (!question || !answer || !serviceId) {
@@ -15,7 +15,8 @@ export const addFaq = async (req, res) => {
             question,
             answer,
             serviceId,
-            showForAll
+            showForAll,
+            userId
         });
 
         await faq.save();
@@ -55,7 +56,7 @@ export const getFaqById = async (req, res) => {
 export const updateFaq = async (req, res) => {
     try {
         const { id } = req.params;
-        const { question, answer, serviceId, showForAll } = req.body;
+        const { question, answer, serviceId, showForAll, userId } = req.body;
 
         // Validate required fields
         if (!question || !answer || !serviceId) {
@@ -66,7 +67,8 @@ export const updateFaq = async (req, res) => {
             question,
             answer,
             serviceId,
-            showForAll
+            showForAll,
+            userId
         };
 
         const faq = await Faq.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });

@@ -3,7 +3,7 @@ import { Blog } from '../models/blog.model.js';
 // Add a new Blog
 export const addBlog = async (req, res) => {
     try {
-        const { content,blogTitle,blogImage,blogDescription } = req.body;
+        const { content,blogTitle,blogImage,blogDescription,userId } = req.body;
         // Validate blog content (e.g., check for base64 image or URL)
         if (!content || typeof content !== 'string') {
             return res.status(400).json({ message: 'Invalid blog content', success: false });
@@ -14,6 +14,7 @@ export const addBlog = async (req, res) => {
             blogTitle,
             blogDescription,
             blogImage,
+            userId,
             blog:content,  // Store the blog data (could be an image or text)
         });
 
@@ -58,7 +59,7 @@ export const getBlogById = async (req, res) => {
 export const updateBlog = async (req, res) => {
     try {
         const { id } = req.params;
-        const { content,blogTitle,blogImage,blogDescription } = req.body;
+        const { content,blogTitle,blogImage,blogDescription,userId } = req.body;
 
         // Validate blog content
         if (!content || typeof content !== 'string') {
@@ -67,7 +68,7 @@ export const updateBlog = async (req, res) => {
 
         const updatedData = { blog:content,blogTitle,
             blogDescription,
-            blogImage, };
+            blogImage,userId };
 
         const updatedBlog = await Blog.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
         if (!updatedBlog) {

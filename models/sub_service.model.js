@@ -30,7 +30,11 @@ const subServiceSchema = new mongoose.Schema({
      subServiceEnabled:{
         type:Boolean,
         required:true
-     }
+     },
+     userId:{
+        type: mongoose.Schema.Types.ObjectId, 
+          required:false
+      }
 
 }, { timestamps: true });
 

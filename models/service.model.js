@@ -38,7 +38,11 @@ const serviceSchema = new mongoose.Schema({
      serviceEnabled:{
         type:Boolean,
         required:true
-     }
+     },
+     userId:{
+        type: mongoose.Schema.Types.ObjectId, 
+          required:false
+      }
 
 }, { timestamps: true });
 

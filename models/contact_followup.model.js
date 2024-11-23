@@ -16,6 +16,10 @@ const contactFollowupSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    userId:{
+        type: mongoose.Schema.Types.ObjectId, 
+          required:false
+      }
 }, {
     timestamps: true, // Adds createdAt and updatedAt fields automatically
 });

@@ -5,7 +5,7 @@ import getDataUri from "../utils/datauri.js";
 // Add a new category
 export const addCategory = async (req, res) => {
     try {
-        const { categoryName,categoryDescription, imageBase64 } = req.body;
+        const { categoryName,categoryDescription, imageBase64,userId } = req.body;
         // Validate base64 image data
         if (!imageBase64 || !imageBase64.startsWith('data:image')) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
@@ -16,6 +16,7 @@ export const addCategory = async (req, res) => {
             categoryName:req.body.name,
             categoryImage: imageBase64, // Store the base64 string in MongoDB
             categoryDescription:req.body.description,
+            userId:req.body.userId
         });
 
         await category.save();
@@ -55,7 +56,7 @@ export const getCategoryById = async (req, res) => {
 export const updateCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const { categoryName, imageBase64, categoryDescription } = req.body;
+        const { categoryName, imageBase64, categoryDescription,userId } = req.body;
 
         // Validate base64 image data
         if (imageBase64 && !imageBase64.startsWith('data:image')) {
@@ -65,6 +66,7 @@ export const updateCategory = async (req, res) => {
         const updatedData = {
             categoryName:req.body.name,
             categoryDescription:req.body.description,
+            userId:req.body.userId,
             ...(imageBase64 && { categoryImage: imageBase64 }) // Only update image if new image is provided
         };
 

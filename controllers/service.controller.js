@@ -5,7 +5,7 @@ import getDataUri from "../utils/datauri.js";
 // Add a new service
 export const addService = async (req, res) => {
     try {
-        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose, howWorks,beforeAfterGallary, others, categoryId, serviceEnabled } = req.body;
+        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose, howWorks,beforeAfterGallary, others, categoryId, serviceEnabled,userId} = req.body;
         
         // Validate base64 image data
         if (!serviceImage || !serviceImage.startsWith('data:image') || !beforeAfterImage || !beforeAfterImage.startsWith('data:image')) {
@@ -23,7 +23,8 @@ export const addService = async (req, res) => {
             beforeAfterGallary,
             others,
             categoryId,
-            serviceEnabled
+            serviceEnabled,
+            userId
         });
 
         await service.save();
@@ -63,7 +64,7 @@ export const getServiceById = async (req, res) => {
 export const updateService = async (req, res) => {
     try {
         const { id } = req.params;
-        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose, howWorks,beforeAfterGallary, others, categoryId, serviceEnabled } = req.body;
+        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose, howWorks,beforeAfterGallary, others, categoryId, serviceEnabled,userId } = req.body;
 
         // Validate base64 image data
         if (serviceImage && !serviceImage.startsWith('data:image') || beforeAfterImage && !beforeAfterImage.startsWith('data:image')) {
@@ -81,7 +82,8 @@ export const updateService = async (req, res) => {
             beforeAfterGallary,
             others,
             categoryId,
-            serviceEnabled
+            serviceEnabled,
+            userId
         };
 
         const service = await Service.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });

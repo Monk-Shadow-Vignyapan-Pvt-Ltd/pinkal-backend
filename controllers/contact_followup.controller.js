@@ -3,7 +3,7 @@ import { ContactFollowup } from '../models/contact_followup.model.js';
 // Add a new follow-up
 export const addFollowup = async (req, res) => {
     try {
-        const { contactId, status, followupMessage } = req.body;
+        const { contactId, status, followupMessage,userId } = req.body;
 
         // Validate required fields
         if (!contactId || !status || !followupMessage) {
@@ -14,6 +14,7 @@ export const addFollowup = async (req, res) => {
             contactId,
             status,
             followupMessage,
+            userId
         });
 
         await followup.save();
@@ -58,9 +59,9 @@ export const getFollowupById = async (req, res) => {
 export const updateFollowup = async (req, res) => {
     try {
         const { id } = req.params;
-        const { contactId, status, followupMessage } = req.body;
+        const { contactId, status, followupMessage,userId } = req.body;
 
-        const updatedData = { contactId, status, followupMessage };
+        const updatedData = { contactId, status, followupMessage,userId };
 
         const followup = await ContactFollowup.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
 

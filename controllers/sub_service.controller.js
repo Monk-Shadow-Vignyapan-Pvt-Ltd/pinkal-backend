@@ -57,6 +57,20 @@ export const getSubServiceById = async (req, res) => {
     }
 };
 
+export const getSubServicesByServiceId = async (req, res) => {
+    try {
+        const { id } = req.params; // Extract the service ID from the request parameters
+        const subServices = await SubService.find({ serviceId: id }); // Correctly query by serviceId
+        if (!subServices.length) {
+            return res.status(404).json({ message: "Subservices not found!", success: false });
+        }
+        return res.status(200).json({ subServices, success: true });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch subservices", success: false });
+    }
+};
+
 // Update subservice by ID
 export const updateSubService = async (req, res) => {
     try {

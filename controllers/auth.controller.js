@@ -85,12 +85,20 @@ export const tokenIsValid = async (req, res) => {
 export const getUser = async (req, res) => {
   try {
     const user = await User.findById(req.user);
+    const users = await User.find();
+    const filteredUsers = users.map(({ _id, email, username, avatar}) => ({
+      _id,
+      email,
+      username,
+      avatar
+  }));
    
     res.json({
       username: user.username,
       id: user._id,
       avatar: user.avatar,
-      roles:user.roles
+      roles:user.roles,
+      users:filteredUsers
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

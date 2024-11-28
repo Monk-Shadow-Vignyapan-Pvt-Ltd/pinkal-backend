@@ -1,6 +1,7 @@
 import { SubService } from '../models/sub_service.model.js';
 import cloudinary from "../utils/cloudinary.js";
 import getDataUri from "../utils/datauri.js";
+import sharp from 'sharp';
 
 // Add a new subservice
 export const addSubService = async (req, res) => {
@@ -12,11 +13,35 @@ export const addSubService = async (req, res) => {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
 
+        const base64Data = subServiceImage.split(';base64,').pop();
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        // Resize and compress the image using sharp
+        const compressedBuffer = await sharp(buffer)
+            .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+            .toBuffer();
+
+        // Convert back to Base64 for storage (optional)
+        const compressedSubServiceBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+
+        const base64beforeAfterData = beforeAfterImage.split(';base64,').pop();
+        const bufferbeforeAfter = Buffer.from(base64beforeAfterData, 'base64');
+
+        // Resize and compress the image using sharp
+        const compressedbeforeAfterBuffer = await sharp(bufferbeforeAfter)
+            .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+            .toBuffer();
+
+        // Convert back to Base64 for storage (optional)
+        const compressedbeforeAfterBase64 = `data:image/jpeg;base64,${compressedbeforeAfterBuffer.toString('base64')}`;
+
         const subService = new SubService({
             subServiceName,
             subServiceDescription,
-            subServiceImage, // Store the base64 image data
-            beforeAfterImage, // Store the before/after base64 image data
+            subServiceImage:compressedSubServiceBase64, // Store the base64 image data
+            beforeAfterImage:compressedbeforeAfterBase64, // Store the before/after base64 image data
             howWorks,
             beforeAfterGallary,
             others,
@@ -83,11 +108,35 @@ export const updateSubService = async (req, res) => {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
 
+        const base64Data = subServiceImage.split(';base64,').pop();
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        // Resize and compress the image using sharp
+        const compressedBuffer = await sharp(buffer)
+            .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+            .toBuffer();
+
+        // Convert back to Base64 for storage (optional)
+        const compressedSubServiceBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+
+        const base64beforeAfterData = beforeAfterImage.split(';base64,').pop();
+        const bufferbeforeAfter = Buffer.from(base64beforeAfterData, 'base64');
+
+        // Resize and compress the image using sharp
+        const compressedbeforeAfterBuffer = await sharp(bufferbeforeAfter)
+            .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+            .toBuffer();
+
+        // Convert back to Base64 for storage (optional)
+        const compressedbeforeAfterBase64 = `data:image/jpeg;base64,${compressedbeforeAfterBuffer.toString('base64')}`;
+
         const updatedData = {
             subServiceName,
             subServiceDescription,
-            ...(subServiceImage && { subServiceImage }), // Only update image if new image is provided
-            ...(beforeAfterImage && { beforeAfterImage }), // Only update before/after image if new image is provided
+            ...(compressedSubServiceBase64 && { subServiceImage:compressedSubServiceBase64 }), // Only update image if new image is provided
+            ...(compressedbeforeAfterBase64 && { beforeAfterImage:compressedbeforeAfterBase64 }), // Only update before/after image if new image is provided
             howWorks,
             beforeAfterGallary,
             others,

@@ -24,3 +24,14 @@ export const surveyOnOff = async (req, res) => {
         res.status(500).json({ message: "Internal server error." });
       }
 }
+
+export const getSurveyOnOff = async (req, res) => {
+  try {
+      const surveyonoffs = await SurveyOnOff.find();
+      if (!surveyonoffs) return res.status(404).json({ message: "Surveys not found", success: false });
+      return res.status(200).json({ surveyonoffs });
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: 'Failed to fetch surveys', success: false });
+  }
+};

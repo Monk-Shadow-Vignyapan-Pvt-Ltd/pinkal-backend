@@ -153,20 +153,22 @@ export const updateUser = async (req, res) => {
           if (avatar && !avatar.startsWith('data:image')) {
               return res.status(400).json({ message: 'Invalid image data', success: false });
             }
+            let compressedBase64 = "";
+            if(avatar){
+              const base64Data = avatar.split(';base64,').pop();
+              const buffer = Buffer.from(base64Data, 'base64');
+        
+              // Resize and compress the image using sharp
+              const compressedBuffer = await sharp(buffer)
+                  .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+                  .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+                  .toBuffer();
+        
+              // Convert back to Base64 for storage (optional)
+               compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+            }
 
-            const base64Data = avatar.split(';base64,').pop();
-            const buffer = Buffer.from(base64Data, 'base64');
-      
-            // Resize and compress the image using sharp
-            const compressedBuffer = await sharp(buffer)
-                .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
-                .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
-                .toBuffer();
-      
-            // Convert back to Base64 for storage (optional)
-            const compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;  
-
-        const updatedData = { email, password: hashedPassword, username, avatar:compressedBase64,isAdmin,roles };
+        const updatedData = { email, password: hashedPassword, username, avatar:avatar ? compressedBase64 :avatar,isAdmin,roles };
 
         const user = await User.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
         if (!user) return res.status(404).json({ message: "User not found!", success: false });

@@ -12,27 +12,33 @@ export const addTestimonial = async (req, res) => {
 
 
         // Validate base64 image data
-        if (!imageBase64 || !imageBase64.startsWith('data:image')) {
+        if (imageBase64 && !imageBase64.startsWith('data:image')) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
 
-        const base64Data = imageBase64.split(';base64,').pop();
-        const buffer = Buffer.from(base64Data, 'base64');
+        
 
         // Resize and compress the image using sharp
-        const compressedBuffer = await sharp(buffer)
-            .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
-            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
-            .toBuffer();
-
-        // Convert back to Base64 for storage (optional)
-        const compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+        let compressedBase64 = "";
+        if(imageBase64){
+            const base64Data = imageBase64.split(';base64,').pop();
+            const buffer = Buffer.from(base64Data, 'base64');
+        
+              // Resize and compress the image using sharp
+              const compressedBuffer = await sharp(buffer)
+                  .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+                  .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+                  .toBuffer();
+        
+              // Convert back to Base64 for storage (optional)
+               compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+            }
 
         // Create and save the testimonial details in MongoDB
         const testimonial = new Testimonial({
             name,
             description,
-            image: compressedBase64,  // Store the base64 string (or you could upload to Cloudinary)
+            image:imageBase64 ? compressedBase64 : imageBase64,  // Store the base64 string (or you could upload to Cloudinary)
             serviceId,
             showForAll,
             userId
@@ -82,17 +88,23 @@ export const updateTestimonial = async (req, res) => {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
 
-        const base64Data = imageBase64.split(';base64,').pop();
-        const buffer = Buffer.from(base64Data, 'base64');
+        
 
         // Resize and compress the image using sharp
-        const compressedBuffer = await sharp(buffer)
-            .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
-            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
-            .toBuffer();
-
-        // Convert back to Base64 for storage (optional)
-        const compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+        let compressedBase64 = "";
+        if(imageBase64){
+            const base64Data = imageBase64.split(';base64,').pop();
+            const buffer = Buffer.from(base64Data, 'base64');
+        
+              // Resize and compress the image using sharp
+              const compressedBuffer = await sharp(buffer)
+                  .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+                  .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+                  .toBuffer();
+        
+              // Convert back to Base64 for storage (optional)
+               compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+            }
 
         const updatedData = {
             name,
@@ -100,7 +112,7 @@ export const updateTestimonial = async (req, res) => {
             serviceId,
             showForAll,
             userId,
-            ...(compressedBase64 && { image: compressedBase64 }) // Update image only if a new image is provided
+            image:imageBase64 ? compressedBase64 : imageBase64, // Update image only if a new image is provided
         };
 
         const testimonial = await Testimonial.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });

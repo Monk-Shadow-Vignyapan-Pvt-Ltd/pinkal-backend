@@ -6,7 +6,7 @@ import sharp from 'sharp';
 // Add a new subservice
 export const addSubService = async (req, res) => {
     try {
-        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage, howWorks,beforeAfterGallary = [], others, serviceId, subServiceEnabled,userId } = req.body;
+        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,userId } = req.body;
 
         // Validate base64 image data
         if (!subServiceImage || !subServiceImage.startsWith('data:image') || !beforeAfterImage || !beforeAfterImage.startsWith('data:image')) {
@@ -45,6 +45,7 @@ export const addSubService = async (req, res) => {
             subServiceImage:compressedSubServiceBase64, // Store the base64 image data
             beforeAfterImage:compressedbeforeAfterBase64, // Store the before/after base64 image data
             howWorks,
+            howWorksName,
             beforeAfterGallary:compressedBeforeAfterGallary,
             others,
             serviceId,
@@ -104,7 +105,7 @@ export const getSubServicesByServiceId = async (req, res) => {
 export const updateSubService = async (req, res) => {
     try {
         const { id } = req.params;
-        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage, howWorks,beforeAfterGallary = [], others, serviceId, subServiceEnabled,userId } = req.body;
+        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,userId } = req.body;
 
         // Validate base64 image data
         if (subServiceImage && !subServiceImage.startsWith('data:image') || beforeAfterImage && !beforeAfterImage.startsWith('data:image')) {
@@ -143,6 +144,7 @@ export const updateSubService = async (req, res) => {
             ...(compressedSubServiceBase64 && { subServiceImage:compressedSubServiceBase64 }), // Only update image if new image is provided
             ...(compressedbeforeAfterBase64 && { beforeAfterImage:compressedbeforeAfterBase64 }), // Only update before/after image if new image is provided
             howWorks,
+            howWorksName,
             beforeAfterGallary:compressedBeforeAfterGallary,
             others,
             serviceId,

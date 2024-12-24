@@ -6,7 +6,7 @@ import sharp from 'sharp';
 // Add a new service
 export const addService = async (req, res) => {
     try {
-        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose, howWorks,beforeAfterGallary = [], others, categoryId, serviceEnabled,userId} = req.body;
+        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,userId} = req.body;
         
         // Validate base64 image data
         if (!serviceImage || !serviceImage.startsWith('data:image') || !beforeAfterImage || !beforeAfterImage.startsWith('data:image')) {
@@ -50,7 +50,9 @@ export const addService = async (req, res) => {
             serviceType,
             beforeAfterImage:compressedBeforeAfterBase64, // Store the before/after base64 image data
             whyChoose,
+            whyChooseName,
             howWorks,
+            howWorksName,
             beforeAfterGallary:compressedBeforeAfterGallary,
             others,
             categoryId,
@@ -95,7 +97,7 @@ export const getServiceById = async (req, res) => {
 export const updateService = async (req, res) => {
     try {
         const { id } = req.params;
-        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose, howWorks,beforeAfterGallary = [], others, categoryId, serviceEnabled,userId } = req.body;
+        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,userId } = req.body;
 
         // Validate base64 image data
         if (serviceImage && !serviceImage.startsWith('data:image') || beforeAfterImage && !beforeAfterImage.startsWith('data:image')) {
@@ -137,7 +139,9 @@ export const updateService = async (req, res) => {
             serviceType,
             ...(compressedBeforeAfterBase64 && { beforeAfterImage:compressedBeforeAfterBase64 }), // Only update before/after image if new image is provided
             whyChoose,
+            whyChooseName,
             howWorks,
+            howWorksName,
             beforeAfterGallary:compressedBeforeAfterGallary,
             others,
             categoryId,

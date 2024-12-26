@@ -243,6 +243,17 @@ export const cloneService = async (req, res) => {
         const clonedData = { ...serviceToClone.toObject() };
         delete clonedData._id;
 
+        // Generate a new unique serviceName
+        let newServiceName = serviceToClone.serviceName;
+        let suffix = 1;
+
+        while (await Service.findOne({ serviceName: newServiceName })) {
+            suffix++;
+            newServiceName = `${serviceToClone.serviceName}-${suffix}`;
+        }
+
+        clonedData.serviceName = newServiceName;
+
         // Create a new service with the cloned data
         const clonedService = new Service(clonedData);
         await clonedService.save();
@@ -253,5 +264,6 @@ export const cloneService = async (req, res) => {
         res.status(500).json({ message: 'Failed to clone service', success: false });
     }
 };
+
 
 

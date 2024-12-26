@@ -246,6 +246,17 @@ export const cloneSubService = async (req, res) => {
         const clonedData = { ...subServiceToClone.toObject() };
         delete clonedData._id;
 
+        // Generate a new unique serviceName
+                let newSubServiceName = subServiceToClone.subServiceName;
+                let suffix = 1;
+        
+                while (await SubService.findOne({ subServiceName: newSubServiceName })) {
+                    suffix++;
+                    newSubServiceName = `${subServiceToClone.subServiceName}-${suffix}`;
+                }
+        
+                clonedData.subServiceName = newSubServiceName;
+
         // Create a new service with the cloned data
         const clonedSubService = new SubService(clonedData);
         await clonedSubService.save();

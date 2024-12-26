@@ -13,7 +13,11 @@ const serviceSchema = new mongoose.Schema({
     },
     beforeAfterImage: {
         type: String, // Store image as base64 or use a URL reference
-        required: true,
+        required: false,
+    },
+    afterImage: {
+        type: String, // Store image as base64 or use a URL reference
+        required: false,
     },
     whyChoose: {
         type: mongoose.Schema.Types.Mixed,  // Use Mixed for flexible structure (JSON-like object)

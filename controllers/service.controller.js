@@ -6,10 +6,10 @@ import sharp from 'sharp';
 // Add a new service
 export const addService = async (req, res) => {
     try {
-        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,userId} = req.body;
+        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage,afterImage, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,userId} = req.body;
         
         // Validate base64 image data
-        if (!serviceImage || !serviceImage.startsWith('data:image') || !beforeAfterImage || !beforeAfterImage.startsWith('data:image')) {
+        if (!serviceImage || !serviceImage.startsWith('data:image') ) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
 
@@ -27,7 +27,25 @@ export const addService = async (req, res) => {
         const compressedServiceBase64 = await compressImage(serviceImage);
 
         // Compress the before/after image
-        const compressedBeforeAfterBase64 = await compressImage(beforeAfterImage);
+        if(beforeAfterImage && !beforeAfterImage.startsWith('data:image')){
+            return res.status(400).json({ message: 'Invalid image data', success: false });
+        }
+        let compressedBeforeAfterBase64 = '';
+
+        if(beforeAfterImage){
+            compressedBeforeAfterBase64 = await compressImage(beforeAfterImage);
+        }
+
+        console.log(compressedBeforeAfterBase64);
+
+        if(afterImage && !afterImage.startsWith('data:image')){
+            return res.status(400).json({ message: 'Invalid image data', success: false });
+        }
+        let compressedAfterBase64 = '';
+
+        if(afterImage){
+            compressedAfterBase64 = await compressImage(afterImage);
+        }
 
         // Compress all images in beforeAfterGallary array, if it exists and is not empty
         const compressedBeforeAfterGallary = beforeAfterGallary.length
@@ -41,14 +59,13 @@ export const addService = async (req, res) => {
               )
             : [];
 
-
-
         const service = new Service({
             serviceName,
             serviceDescription,
             serviceImage:compressedServiceBase64, // Store the base64 image data
             serviceType,
-            beforeAfterImage:compressedBeforeAfterBase64, // Store the before/after base64 image data
+            beforeAfterImage:beforeAfterImage ? compressedBeforeAfterBase64 : beforeAfterImage, // Store the before/after base64 image data
+            afterImage:afterImage ? compressedAfterBase64 : afterImage,
             whyChoose,
             whyChooseName,
             howWorks,
@@ -97,10 +114,10 @@ export const getServiceById = async (req, res) => {
 export const updateService = async (req, res) => {
     try {
         const { id } = req.params;
-        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,userId } = req.body;
+        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage,afterImage, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,userId } = req.body;
 
         // Validate base64 image data
-        if (serviceImage && !serviceImage.startsWith('data:image') || beforeAfterImage && !beforeAfterImage.startsWith('data:image')) {
+        if (serviceImage && !serviceImage.startsWith('data:image')) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
 
@@ -117,8 +134,22 @@ export const updateService = async (req, res) => {
         // Compress the main service image
         const compressedServiceBase64 = await compressImage(serviceImage);
 
-        // Compress the before/after image
-        const compressedBeforeAfterBase64 = await compressImage(beforeAfterImage);
+        if(beforeAfterImage && !beforeAfterImage.startsWith('data:image')){
+            return res.status(400).json({ message: 'Invalid image data', success: false });
+        }
+        let compressedBeforeAfterBase64 = '';
+        if(beforeAfterImage){
+            compressedBeforeAfterBase64 = await compressImage(beforeAfterImage);
+        }
+
+        if(afterImage && !afterImage.startsWith('data:image')){
+            return res.status(400).json({ message: 'Invalid image data', success: false });
+        }
+        let compressedAfterBase64 = '';
+
+        if(afterImage){
+            compressedAfterBase64 = await compressImage(afterImage);
+        }
 
         // Compress all images in beforeAfterGallary array, if it exists and is not empty
         const compressedBeforeAfterGallary = beforeAfterGallary.length
@@ -131,13 +162,13 @@ export const updateService = async (req, res) => {
                   })
               )
             : [];
-
         const updatedData = {
             serviceName,
             serviceDescription,
             ...(compressedServiceBase64 && { serviceImage: compressedServiceBase64 }), // Only update image if new image is provided
             serviceType,
-            ...(compressedBeforeAfterBase64 && { beforeAfterImage:compressedBeforeAfterBase64 }), // Only update before/after image if new image is provided
+            beforeAfterImage:beforeAfterImage ? compressedBeforeAfterBase64 : beforeAfterImage, // Only update before/after image if new image is provided
+            afterImage:afterImage ? compressedAfterBase64 : afterImage,
             whyChoose,
             whyChooseName,
             howWorks,
@@ -196,4 +227,31 @@ export const getServicesBeforeAfter = async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch services', success: false });
     }
 };
+
+// Clone service by ID
+export const cloneService = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Find the service to clone
+        const serviceToClone = await Service.findById(id);
+        if (!serviceToClone) {
+            return res.status(404).json({ message: "Service to clone not found!", success: false });
+        }
+
+        // Remove the _id field to avoid duplication error
+        const clonedData = { ...serviceToClone.toObject() };
+        delete clonedData._id;
+
+        // Create a new service with the cloned data
+        const clonedService = new Service(clonedData);
+        await clonedService.save();
+
+        return res.status(201).json({ clonedService, success: true });
+    } catch (error) {
+        console.error('Error cloning service:', error);
+        res.status(500).json({ message: 'Failed to clone service', success: false });
+    }
+};
+
 

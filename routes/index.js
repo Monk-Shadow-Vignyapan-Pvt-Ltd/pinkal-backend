@@ -13,6 +13,8 @@ import surveyAnswerRoute from "./survey_answer.route.js";
 import statusRoute from "./status.route.js";
 import seoRoute from "./seo.route.js";
 import newsletterRoute from "./newsletter.route.js";
+import globalSearchRoute from "./global_search.route.js";
+import gallaryRoute from "./gallary.route.js";
 
 const routes = {
   categoryRoute,
@@ -29,7 +31,9 @@ const routes = {
   surveyAnswerRoute,
   statusRoute,
   seoRoute,
-  newsletterRoute
+  newsletterRoute,
+  globalSearchRoute,
+  gallaryRoute
 };
 
 export default routes;

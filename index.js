@@ -45,6 +45,8 @@ app.use("/api/v1/survey-answers", routes.surveyAnswerRoute);
 app.use("/api/v1/statuses", routes.statusRoute);
 app.use("/api/v1/seos", routes.seoRoute);
 app.use("/api/v1/newsletters", routes.newsletterRoute);
+app.use("/api/v1/globals", routes.globalSearchRoute);
+app.use("/api/v1/gallaries", routes.gallaryRoute);
 
 app.listen(PORT, () => {
     console.log(`server running at port ${PORT}`);

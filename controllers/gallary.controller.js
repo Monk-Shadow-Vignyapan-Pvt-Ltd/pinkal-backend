@@ -3,7 +3,7 @@ import sharp from 'sharp';
 
 export const addGallery = async (req, res) => {
     try {
-        const { others, gallaryEnabled, userId } = req.body;
+        let { others, gallaryEnabled, userId } = req.body;
 
         // Compress image function
         const compressImage = async (base64Image) => {
@@ -16,23 +16,38 @@ export const addGallery = async (req, res) => {
             return `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
         };
 
-        // Compress all images in the gallery, skipping invalid files
-        const compressedImages = others[0].images.length
-            ? await Promise.all(
-                others[0].images.map(async (image) => {
-                    // Skip invalid image files that don't start with 'data:image'
-                    if (!image.file || !image.file.startsWith('data:image')) {
-                        return null; // Return null for invalid images
-                    }
-                    // Compress the valid image and return the new compressed file
-                    const compressedFile = await compressImage(image.file);
-                    return { ...image, file: compressedFile }; // Assign compressed file back to image
-                })
-            )
-            : [];
+        // Compress all images in the gallery
+        const compressAllImages = async (others) => {
+            if (!Array.isArray(others)) return []; // Return empty array if others is not valid
 
-        // Filter out any null values (invalid images)
-        others[0].images = compressedImages.filter(image => image !== null);
+            return await Promise.all(
+                others.map(async (item) => {
+                    try {
+                        if (!Array.isArray(item.images)) {
+                            return item;
+                        }
+
+                        const compressedImages = await Promise.all(
+                            item.images.map(async (image) => {
+                                if (!image.file || !image.file.startsWith('data:image')) {
+                                    return null;
+                                }
+                                const compressedFile = await compressImage(image.file);
+                                return { ...image, file: compressedFile };
+                            })
+                        );
+
+                        return { ...item, images: compressedImages.filter(image => image !== null) };
+                    } catch (err) {
+                        console.error("Error processing item:", item, err);
+                        return item; // Fallback to original item if error occurs
+                    }
+                })
+            );
+        };
+
+        // Process and compress images
+        others = await compressAllImages(others);
 
         // Create a new gallery document
         const newGallery = new Gallary({
@@ -84,7 +99,7 @@ export const getGalleryById = async (req, res) => {
 export const updateGallery = async (req, res) => {
     try {
         const { id } = req.params;
-        const {  others, gallaryEnabled, userId } = req.body;
+        let { others, gallaryEnabled, userId } = req.body;
 
         // Compress image function
         const compressImage = async (base64Image) => {
@@ -97,24 +112,42 @@ export const updateGallery = async (req, res) => {
             return `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
         };
 
-        // Compress all images in the gallery, skipping invalid files
-        const compressedImages = others[0].images.length
-            ? await Promise.all(
-                others[0].images.map(async (image) => {
-                    // Skip invalid image files that don't start with 'data:image'
-                    if (!image.file || !image.file.startsWith('data:image')) {
-                        return null; // Return null for invalid images
+        // Compress all images in the gallery
+        const compressAllImages = async (others) => {
+            if (!Array.isArray(others)) return []; // Return empty array if others is not valid
+
+            return await Promise.all(
+                others.map(async (item) => {
+                    try {
+                        if (!Array.isArray(item.images)) {
+                            console.warn("Skipping item without images:", item);
+                            return item;
+                        }
+
+                        const compressedImages = await Promise.all(
+                            item.images.map(async (image) => {
+                                if (!image.file || !image.file.startsWith('data:image')) {
+                                    console.warn("Skipping invalid image:", image);
+                                    return null;
+                                }
+                                const compressedFile = await compressImage(image.file);
+                                return { ...image, file: compressedFile };
+                            })
+                        );
+
+                        return { ...item, images: compressedImages.filter(image => image !== null) };
+                    } catch (err) {
+                        console.error("Error processing item:", item, err);
+                        return item; // Fallback to original item if error occurs
                     }
-                    // Compress the valid image and return the new compressed file
-                    const compressedFile = await compressImage(image.file);
-                    return { ...image, file: compressedFile }; // Assign compressed file back to image
                 })
-            )
-            : [];
+            );
+        };
 
-        // Filter out any null values (invalid images)
-        others[0].images = compressedImages.filter(image => image !== null);
+        // Process and compress images
+        others = await compressAllImages(others);
 
+        // Update gallery data
         const updatedData = { others, gallaryEnabled, userId };
 
         const updatedGallery = await Gallary.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
@@ -123,10 +156,11 @@ export const updateGallery = async (req, res) => {
         }
         return res.status(200).json({ updatedGallery, success: true });
     } catch (error) {
-        console.log(error);
+        console.error("Error updating gallery:", error);
         res.status(400).json({ message: error.message, success: false });
     }
 };
+
 
 // Delete Gallery by ID
 export const deleteGallery = async (req, res) => {

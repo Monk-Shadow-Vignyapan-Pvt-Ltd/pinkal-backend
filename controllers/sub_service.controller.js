@@ -6,7 +6,7 @@ import sharp from 'sharp';
 // Add a new subservice
 export const addSubService = async (req, res) => {
     try {
-        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage,afterImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,userId } = req.body;
+        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,userId } = req.body;
 
         // Validate base64 image data
         if (!subServiceImage || !subServiceImage.startsWith('data:image')) {
@@ -26,43 +26,71 @@ export const addSubService = async (req, res) => {
         // Convert back to Base64 for storage (optional)
         const compressedSubServiceBase64 = await compressImage(subServiceImage);
 
-        if(beforeAfterImage && !beforeAfterImage.startsWith('data:image')){
-            return res.status(400).json({ message: 'Invalid image data', success: false });
-        }
-        let compressedBeforeAfterBase64 = '';
-        if(beforeAfterImage){
-            compressedBeforeAfterBase64 = await compressImage(beforeAfterImage);
-        }
+        const compressGalleryImages = async (gallery) => {
+            if (!Array.isArray(gallery)) {
+                throw new Error('Input must be an array');
+            }
+        
+            const compressedGallery = await Promise.all(
+                gallery.map(async (item) => {
+                    if (!item.before.startsWith('data:image') || !item.after.startsWith('data:image')) {
+                        throw new Error(`Invalid image in gallery item with id: ${item.id}`);
+                    }
+        
+                    return {
+                        ...item,
+                        before: await compressImage(item.before),
+                        after: await compressImage(item.after),
+                    };
+                })
+            );
+        
+            return compressedGallery;
+        };
+        beforeAfterGallary = await compressGalleryImages(beforeAfterGallary);
 
-        if(afterImage && !afterImage.startsWith('data:image')){
-            return res.status(400).json({ message: 'Invalid image data', success: false });
-        }
-        let compressedAfterBase64 = '';
+        // Compress all images in the gallery
+        const compressAllImages = async (others) => {
+            if (!Array.isArray(others)) return []; // Return empty array if others is not valid
 
-        if(afterImage){
-            compressedAfterBase64 = await compressImage(afterImage);
-        }
+            return await Promise.all(
+                others.map(async (item) => {
+                    try {
+                        if (!Array.isArray(item.images)) {
+                            console.warn("Skipping item without images:", item);
+                            return item;
+                        }
 
-        const compressedBeforeAfterGallary = beforeAfterGallary.length
-            ? await Promise.all(
-                  beforeAfterGallary.map(async (image) => {
-                      if (!image.startsWith('data:image')) {
-                          throw new Error('Invalid image in beforeAfterGallary');
-                      }
-                      return await compressImage(image);
-                  })
-              )
-            : [];
+                        const compressedImages = await Promise.all(
+                            item.images.map(async (image) => {
+                                if (!image.file || !image.file.startsWith('data:image')) {
+                                    console.warn("Skipping invalid image:", image);
+                                    return null;
+                                }
+                                const compressedFile = await compressImage(image.file);
+                                return { ...image, file: compressedFile };
+                            })
+                        );
+
+                        return { ...item, images: compressedImages.filter(image => image !== null) };
+                    } catch (err) {
+                        console.error("Error processing item:", item, err);
+                        return item; // Fallback to original item if error occurs
+                    }
+                })
+            );
+        };
+
+        // Process and compress images
+        others = await compressAllImages(others);
 
         const subService = new SubService({
             subServiceName,
             subServiceDescription,
             subServiceImage:compressedSubServiceBase64, // Store the base64 image data
-            beforeAfterImage:beforeAfterImage ? compressedBeforeAfterBase64 : beforeAfterImage, // Store the before/after base64 image data
-            afterImage:afterImage ? compressedAfterBase64 : afterImage,
             howWorks,
             howWorksName,
-            beforeAfterGallary:compressedBeforeAfterGallary,
+            beforeAfterGallary,
             others,
             serviceId,
             subServiceEnabled,
@@ -121,7 +149,7 @@ export const getSubServicesByServiceId = async (req, res) => {
 export const updateSubService = async (req, res) => {
     try {
         const { id } = req.params;
-        const { subServiceName, subServiceDescription, subServiceImage, beforeAfterImage,afterImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,userId } = req.body;
+        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,userId } = req.body;
 
         // Validate base64 image data
         if (subServiceImage && !subServiceImage.startsWith('data:image')) {
@@ -141,43 +169,71 @@ export const updateSubService = async (req, res) => {
         // Convert back to Base64 for storage (optional)
         const compressedSubServiceBase64 = await compressImage(subServiceImage);
 
-        if(beforeAfterImage && !beforeAfterImage.startsWith('data:image')){
-            return res.status(400).json({ message: 'Invalid image data', success: false });
-        }
-        let compressedBeforeAfterBase64 = '';
-        if(beforeAfterImage){
-            compressedBeforeAfterBase64 = await compressImage(beforeAfterImage);
-        }
+        const compressGalleryImages = async (gallery) => {
+            if (!Array.isArray(gallery)) {
+                throw new Error('Input must be an array');
+            }
+        
+            const compressedGallery = await Promise.all(
+                gallery.map(async (item) => {
+                    if (!item.before.startsWith('data:image') || !item.after.startsWith('data:image')) {
+                        throw new Error(`Invalid image in gallery item with id: ${item.id}`);
+                    }
+        
+                    return {
+                        ...item,
+                        before: await compressImage(item.before),
+                        after: await compressImage(item.after),
+                    };
+                })
+            );
+        
+            return compressedGallery;
+        };
+        beforeAfterGallary = await compressGalleryImages(beforeAfterGallary);
 
-        if(afterImage && !afterImage.startsWith('data:image')){
-            return res.status(400).json({ message: 'Invalid image data', success: false });
-        }
-        let compressedAfterBase64 = '';
+        // Compress all images in the gallery
+        const compressAllImages = async (others) => {
+            if (!Array.isArray(others)) return []; // Return empty array if others is not valid
 
-        if(afterImage){
-            compressedAfterBase64 = await compressImage(afterImage);
-        }
+            return await Promise.all(
+                others.map(async (item) => {
+                    try {
+                        if (!Array.isArray(item.images)) {
+                            console.warn("Skipping item without images:", item);
+                            return item;
+                        }
 
-        const compressedBeforeAfterGallary = beforeAfterGallary.length
-            ? await Promise.all(
-                  beforeAfterGallary.map(async (image) => {
-                      if (!image.startsWith('data:image')) {
-                          throw new Error('Invalid image in beforeAfterGallary');
-                      }
-                      return await compressImage(image);
-                  })
-              )
-            : [];
+                        const compressedImages = await Promise.all(
+                            item.images.map(async (image) => {
+                                if (!image.file || !image.file.startsWith('data:image')) {
+                                    console.warn("Skipping invalid image:", image);
+                                    return null;
+                                }
+                                const compressedFile = await compressImage(image.file);
+                                return { ...image, file: compressedFile };
+                            })
+                        );
+
+                        return { ...item, images: compressedImages.filter(image => image !== null) };
+                    } catch (err) {
+                        console.error("Error processing item:", item, err);
+                        return item; // Fallback to original item if error occurs
+                    }
+                })
+            );
+        };
+
+        // Process and compress images
+        others = await compressAllImages(others);
 
         const updatedData = {
             subServiceName,
             subServiceDescription,
             ...(compressedSubServiceBase64 && { subServiceImage:compressedSubServiceBase64 }), // Only update image if new image is provided
-            beforeAfterImage:beforeAfterImage ? compressedBeforeAfterBase64 : beforeAfterImage, // Store the before/after base64 image data
-            afterImage:afterImage ? compressedAfterBase64 : afterImage,
             howWorks,
             howWorksName,
-            beforeAfterGallary:compressedBeforeAfterGallary,
+            beforeAfterGallary,
             others,
             serviceId,
             subServiceEnabled,

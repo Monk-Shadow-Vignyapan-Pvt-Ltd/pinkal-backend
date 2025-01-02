@@ -29,10 +29,6 @@ export const globalSearch = async (req, res) => {
         searchableFields: ["question", "answer"],
         resultFields: ["_id", "question", "answer"],
       },
-      categories: {
-        searchableFields: ["categoryName", "categoryDescription"],
-        resultFields: ["_id", "categoryName", "categoryDescription"],
-      },
     };
 
     const searchResults = {};

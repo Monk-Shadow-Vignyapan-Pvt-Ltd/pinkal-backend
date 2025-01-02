@@ -120,14 +120,12 @@ export const updateGallery = async (req, res) => {
                 others.map(async (item) => {
                     try {
                         if (!Array.isArray(item.images)) {
-                            console.warn("Skipping item without images:", item);
                             return item;
                         }
 
                         const compressedImages = await Promise.all(
                             item.images.map(async (image) => {
                                 if (!image.file || !image.file.startsWith('data:image')) {
-                                    console.warn("Skipping invalid image:", image);
                                     return null;
                                 }
                                 const compressedFile = await compressImage(image.file);

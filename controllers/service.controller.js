@@ -1,4 +1,5 @@
 import { Service } from '../models/service.model.js';
+import { ServiceRanking } from '../models/service_ranking.model.js';
 import cloudinary from "../utils/cloudinary.js";
 import getDataUri from "../utils/datauri.js";
 import sharp from 'sharp';
@@ -310,6 +311,36 @@ export const cloneService = async (req, res) => {
         res.status(500).json({ message: 'Failed to clone service', success: false });
     }
 };
+
+
+export const addServiceRanking = async (req, res) => {
+    try {
+        let { ranking,userId} = req.body;
+        const serviceRanking = await ServiceRanking.findOneAndUpdate(
+                  {}, 
+                  { ranking,userId}, 
+                  { new: true, upsert: true }
+                );
+
+        await serviceRanking.save();
+        res.status(201).json({ serviceRanking, success: true });
+    } catch (error) {
+        console.error('Error uploading serviceRanking:', error);
+        res.status(500).json({ message: 'Failed to upload serviceRanking', success: false });
+    }
+};
+
+export const getServiceRanking = async (req, res) => {
+  try {
+      const serviceRankings = await ServiceRanking.find();
+      if (!serviceRankings) return res.status(404).json({ message: "Service Rankings not found", success: false });
+      return res.status(200).json({ serviceRankings });
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: 'Failed to fetch service Rankings', success: false });
+  }
+};
+
 
 
 

@@ -355,10 +355,10 @@ export const getServicesAfterRanking = async (req, res) => {
 
         // Fetch services that match the ranked IDs
         const mainservices = await Service.find({ _id: { $in: rankedServiceIds } })
-            .populate('categoryId'); // Populate category data
+        .select('serviceName serviceDescription serviceImage');
 
         const subservices = await SubService.find({ _id: { $in: rankedServiceIds } })
-            .populate('serviceId'); // Populate category data
+        .select('subServiceName subServiceDescription subServiceImage');
 
         const services = [...mainservices,...subservices];
 

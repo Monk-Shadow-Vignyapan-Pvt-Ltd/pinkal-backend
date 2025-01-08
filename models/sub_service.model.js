@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const subServiceSchema = new mongoose.Schema({
-    subServiceName: { type: String, required: true },
+    subServiceName: { type: String, required: true,unique: true },
     subServiceDescription: { type: String, required: true },
     subServiceImage: {
         type: String, // Store image as base64 or use a URL reference
@@ -39,6 +39,7 @@ const subServiceSchema = new mongoose.Schema({
         type:Boolean,
         required:true
      },
+     subServiceUrl: { type: String, required: true ,unique: true },
      userId:{
         type: mongoose.Schema.Types.ObjectId, 
           required:false

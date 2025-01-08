@@ -8,7 +8,7 @@ import sharp from 'sharp';
 // Add a new service
 export const addService = async (req, res) => {
     try {
-        let { serviceName, serviceDescription, serviceImage,serviceType, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,userId} = req.body;
+        let { serviceName, serviceDescription, serviceImage,serviceType, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,serviceUrl, userId} = req.body;
         
         // Validate base64 image data
         if (!serviceImage || !serviceImage.startsWith('data:image') ) {
@@ -97,6 +97,7 @@ export const addService = async (req, res) => {
             others,
             categoryId,
             serviceEnabled,
+            serviceUrl,
             userId
         });
 
@@ -133,11 +134,23 @@ export const getServiceById = async (req, res) => {
     }
 };
 
+export const getServiceByUrl = async (req, res) => {
+    try {
+        const serviceUrl = req.params.id;
+        const service = await Service.findOne({serviceUrl}).populate('categoryId'); // Populating category data
+        if (!service) return res.status(404).json({ message: "Service not found!", success: false });
+        return res.status(200).json({ service, success: true });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to fetch service', success: false });
+    }
+};
+
 // Update service by ID
 export const updateService = async (req, res) => {
     try {
         const { id } = req.params;
-        let { serviceName, serviceDescription, serviceImage,serviceType, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,userId } = req.body;
+        let { serviceName, serviceDescription, serviceImage,serviceType, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,serviceUrl,userId } = req.body;
 
         // Validate base64 image data
         if (serviceImage && !serviceImage.startsWith('data:image')) {
@@ -225,6 +238,7 @@ export const updateService = async (req, res) => {
             others,
             categoryId,
             serviceEnabled,
+            serviceUrl,
             userId
         };
 
@@ -254,7 +268,7 @@ export const deleteService = async (req, res) => {
 export const getServicesFrontend = async (req, res) => {
     try {
         const services = await Service.find()
-        .select('serviceName categoryId serviceType serviceEnabled')
+        .select('serviceName serviceUrl categoryId serviceType serviceEnabled')
         .populate('categoryId'); // Populating category data
         if (!services) return res.status(404).json({ message: "Services not found", success: false });
         return res.status(200).json({ services });
@@ -277,6 +291,13 @@ export const getServicesBeforeAfter = async (req, res) => {
 };
 
 // Clone service by ID
+function createUrl(name) {
+    return name
+      .trim()                        // Remove extra spaces
+      .toLowerCase()                 // Convert to lowercase
+      .replace(/\s+/g, '-')          // Replace spaces with hyphens
+      .replace(/[^a-z0-9-]/g, '');   // Remove special characters except hyphens
+  }
 export const cloneService = async (req, res) => {
     try {
         const { id } = req.params;
@@ -293,14 +314,17 @@ export const cloneService = async (req, res) => {
 
         // Generate a new unique serviceName
         let newServiceName = serviceToClone.serviceName;
+        let newServiceUrl = serviceToClone.serviceUrl;
         let suffix = 1;
 
         while (await Service.findOne({ serviceName: newServiceName })) {
             suffix++;
             newServiceName = `${serviceToClone.serviceName}-${suffix}`;
+            newServiceUrl = createUrl(newServiceName)
         }
 
         clonedData.serviceName = newServiceName;
+        clonedData.serviceUrl = newServiceUrl;
 
         // Create a new service with the cloned data
         const clonedService = new Service(clonedData);
@@ -355,10 +379,10 @@ export const getServicesAfterRanking = async (req, res) => {
 
         // Fetch services that match the ranked IDs
         const mainservices = await Service.find({ _id: { $in: rankedServiceIds } })
-        .select('serviceName serviceDescription serviceImage');
+        .select('serviceName serviceUrl serviceDescription serviceImage');
 
         const subservices = await SubService.find({ _id: { $in: rankedServiceIds } })
-        .select('subServiceName subServiceDescription subServiceImage');
+        .select('subServiceName subServiceUrl subServiceDescription subServiceImage');
 
         const services = [...mainservices,...subservices];
 

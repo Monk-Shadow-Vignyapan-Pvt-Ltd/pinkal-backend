@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const serviceSchema = new mongoose.Schema({
-    serviceName: { type: String, required: true },
+    serviceName: { type: String, required: true ,unique: true },
     serviceDescription: { type: String, required: true },
     serviceImage: {
         type: String, // Store image as base64 or use a URL reference
@@ -51,6 +51,7 @@ const serviceSchema = new mongoose.Schema({
         type:Boolean,
         required:true
      },
+     serviceUrl: { type: String, required: true ,unique: true },
      userId:{
         type: mongoose.Schema.Types.ObjectId, 
           required:false

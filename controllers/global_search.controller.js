@@ -15,11 +15,11 @@ export const globalSearch = async (req, res) => {
     const collectionsToSearch = {
       services: {
         searchableFields: ["serviceName", "serviceDescription", "whyChoose", "howWorks", "others"],
-        resultFields: ["_id", "serviceName", "serviceDescription",],
+        resultFields: ["_id","serviceUrl", "serviceName", "serviceDescription",],
       },
       subservices: {
         searchableFields: ["subServiceName", "subServiceDescription", "howWorks", "others"],
-        resultFields: ["_id", "subServiceName", "subServiceDescription",],
+        resultFields: ["_id","subServiceUrl", "subServiceName", "subServiceDescription",],
       },
       blogs: {
         searchableFields: ["blogTitle", "blogDescription", "blog"],

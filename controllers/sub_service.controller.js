@@ -6,7 +6,7 @@ import sharp from 'sharp';
 // Add a new subservice
 export const addSubService = async (req, res) => {
     try {
-        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,userId } = req.body;
+        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,subServiceUrl,userId } = req.body;
 
         // Validate base64 image data
         if (!subServiceImage || !subServiceImage.startsWith('data:image')) {
@@ -92,6 +92,7 @@ export const addSubService = async (req, res) => {
             others,
             serviceId,
             subServiceEnabled,
+            subServiceUrl,
             userId
         });
 
@@ -128,11 +129,23 @@ export const getSubServiceById = async (req, res) => {
     }
 };
 
+export const getSubServiceByUrl = async (req, res) => {
+    try {
+        const subServiceUrl = req.params.id;
+        const subService = await SubService.findOne({subServiceUrl}).populate('serviceId'); // Populating category data
+        if (!subService) return res.status(404).json({ message: "SubService not found!", success: false });
+        return res.status(200).json({ subService, success: true });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to fetch subservice', success: false });
+    }
+};
+
 export const getSubServicesByServiceId = async (req, res) => {
     try {
         const { id } = req.params; // Extract the service ID from the request parameters
         const subServices = await SubService.find({ serviceId: id })
-        .select('subServiceName subServiceDescription subServiceImage subServiceEnabled'); // Correctly query by serviceId
+        .select('subServiceName subServiceUrl subServiceDescription subServiceImage subServiceEnabled'); // Correctly query by serviceId
         if (!subServices.length) {
             return res.status(404).json({ message: "Subservices not found!", success: false });
         }
@@ -147,7 +160,7 @@ export const getSubServicesByServiceId = async (req, res) => {
 export const updateSubService = async (req, res) => {
     try {
         const { id } = req.params;
-        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,userId } = req.body;
+        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,subServiceUrl,userId } = req.body;
 
         // Validate base64 image data
         if (subServiceImage && !subServiceImage.startsWith('data:image')) {
@@ -233,6 +246,7 @@ export const updateSubService = async (req, res) => {
             others,
             serviceId,
             subServiceEnabled,
+            subServiceUrl,
             userId
         };
 
@@ -261,7 +275,7 @@ export const deleteSubService = async (req, res) => {
 export const getSubServicesFrontend = async (req, res) => {
     try {
         const subServices = await SubService.find()
-        .select('subServiceName serviceId subServiceEnabled')
+        .select('subServiceName subServiceUrl serviceId subServiceEnabled')
         .populate('serviceId'); // Populating category data
         if (!subServices) return res.status(404).json({ message: "Sub Services not found", success: false });
         return res.status(200).json({ subServices });
@@ -284,6 +298,13 @@ export const getSubServicesBeforeAfter = async (req, res) => {
 };
 
 // Clone subService by ID
+function createUrl(name) {
+    return name
+      .trim()                        // Remove extra spaces
+      .toLowerCase()                 // Convert to lowercase
+      .replace(/\s+/g, '-')          // Replace spaces with hyphens
+      .replace(/[^a-z0-9-]/g, '');   // Remove special characters except hyphens
+  }
 export const cloneSubService = async (req, res) => {
     try {
         const { id } = req.params;
@@ -300,14 +321,17 @@ export const cloneSubService = async (req, res) => {
 
         // Generate a new unique serviceName
                 let newSubServiceName = subServiceToClone.subServiceName;
+                let newSubServiceUrl = subServiceToClone.subServiceUrl;
                 let suffix = 1;
         
                 while (await SubService.findOne({ subServiceName: newSubServiceName })) {
                     suffix++;
                     newSubServiceName = `${subServiceToClone.subServiceName}-${suffix}`;
+                    newSubServiceUrl = createUrl(newSubServiceName)
                 }
         
                 clonedData.subServiceName = newSubServiceName;
+                clonedData.subServiceUrl = newSubServiceUrl;
 
         // Create a new service with the cloned data
         const clonedSubService = new SubService(clonedData);

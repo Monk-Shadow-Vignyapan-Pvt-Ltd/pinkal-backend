@@ -1,5 +1,6 @@
 import { Service } from '../models/service.model.js';
 import { ServiceRanking } from '../models/service_ranking.model.js';
+import { ServiceSearch } from '../models/service_search.model.js';
 import { SubService } from '../models/sub_service.model.js';
 import cloudinary from "../utils/cloudinary.js";
 import getDataUri from "../utils/datauri.js";
@@ -370,6 +371,68 @@ export const getServicesAfterRanking = async (req, res) => {
     try {
         // Fetch the service ranking
         const serviceRanking = await ServiceRanking.findOne().select('ranking');
+        if (!serviceRanking || !serviceRanking.ranking || serviceRanking.ranking.length === 0) {
+            return res.status(404).json({ message: "No ranked services found", success: false });
+        }
+
+        // Extract service IDs from the ranking
+        const rankedServiceIds = serviceRanking.ranking.map(item => item.value);
+
+        // Fetch services that match the ranked IDs
+        const mainservices = await Service.find({ _id: { $in: rankedServiceIds } })
+        .select('serviceName serviceUrl serviceDescription serviceImage');
+
+        const subservices = await SubService.find({ _id: { $in: rankedServiceIds } })
+        .select('subServiceName subServiceUrl subServiceDescription subServiceImage');
+
+        const services = [...mainservices,...subservices];
+
+        if (!services || services.length === 0) {
+            return res.status(404).json({ message: "Ranked services not found", success: false });
+        }
+
+        // Sort services based on their rank
+        const sortedServices = rankedServiceIds.map(id => services.find(service => service._id.toString() === id));
+
+        return res.status(200).json({ services: sortedServices, success: true });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to fetch ranked services', success: false });
+    }
+};
+
+export const addServiceInSearch = async (req, res) => {
+    try {
+        let { ranking,userId} = req.body;
+        const serviceRanking = await ServiceSearch.findOneAndUpdate(
+                  {}, 
+                  { ranking,userId}, 
+                  { new: true, upsert: true }
+                );
+
+        await serviceRanking.save();
+        res.status(201).json({ serviceRanking, success: true });
+    } catch (error) {
+        console.error('Error uploading serviceRanking:', error);
+        res.status(500).json({ message: 'Failed to upload serviceRanking', success: false });
+    }
+};
+
+export const getServiceInSearch = async (req, res) => {
+  try {
+      const serviceRankings = await ServiceSearch.find();
+      if (!serviceRankings) return res.status(404).json({ message: "Service Rankings not found", success: false });
+      return res.status(200).json({ serviceRankings });
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: 'Failed to fetch service Rankings', success: false });
+  }
+};
+
+export const getServicesAfterInSearch = async (req, res) => {
+    try {
+        // Fetch the service ranking
+        const serviceRanking = await ServiceSearch.findOne().select('ranking');
         if (!serviceRanking || !serviceRanking.ranking || serviceRanking.ranking.length === 0) {
             return res.status(404).json({ message: "No ranked services found", success: false });
         }

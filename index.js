@@ -20,7 +20,7 @@ app.use(urlencoded({extended:true}));
 app.use(cookieParser());
 
 app.use(cors({
-  origin: ["https://console.pinkalhealth.ca", "https://pinkalhealth.ca","http://localhost:5173/"], // Allow both domains
+  origin: ["https://console.pinkalhealth.ca", "https://pinkalhealth.ca","http://localhost:5173"], // Allow both domains
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   allowedHeaders: [
     "Origin",

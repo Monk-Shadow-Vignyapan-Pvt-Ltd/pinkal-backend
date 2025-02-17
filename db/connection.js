@@ -41,7 +41,7 @@ const connectDB = async () => {
                     { name: "Blogs", actions: { permission: true } },
                     { name: "Contact", actions: { permission: true } },
                     { name: "Survey", actions: { permission: true } },
-                    { name: "Seo", actions: { permission: true } },
+                    { name: "News-Letter", actions: { permission: true } },
                 ],
             });
 

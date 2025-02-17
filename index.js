@@ -20,14 +20,19 @@ app.use(urlencoded({extended:true}));
 app.use(cookieParser());
 
 app.use(cors({
-  origin: "*", // Specify the frontend's origin
+  origin: ["https://console.pinkalhealth.ca", "https://pinkalhealth.ca","http://localhost:5173/"], // Allow both domains
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization", "x-auth-token"],
-  credentials: true, // Allow credentials if needed
+  allowedHeaders: [
+    "Origin",
+    "X-Requested-With",
+    "Content-Type",
+    "Accept",
+    "Authorization",
+    "x-auth-token"
+  ],
+  credentials: true, // Allow cookies and authentication headers
 }));
 
-// Explicitly handle OPTIONS method for preflight
-app.options("*", cors()); // Allow preflight requests
 
 // api's route
 app.use("/api/v1/auth", routes.authRoute);

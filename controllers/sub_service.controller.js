@@ -146,7 +146,7 @@ export const getSubServicesByServiceId = async (req, res) => {
         const { id } = req.params; // Extract the service ID from the request parameters
         const subServices = await SubService.find({ serviceId: id })
         .select('subServiceName subServiceUrl subServiceDescription subServiceImage subServiceEnabled'); // Correctly query by serviceId
-        if (!subServices.length) {
+        if (!subServices) {
             return res.status(404).json({ message: "Subservices not found!", success: false });
         }
         return res.status(200).json({ subServices, success: true });

@@ -114,7 +114,7 @@ export const addService = async (req, res) => {
 // Get all services
 export const getServices = async (req, res) => {
     try {
-        const services = await Service.find().populate('categoryId'); // Populating category data
+        const services = await Service.find().select('serviceName serviceUrl serviceImage categoryId serviceType serviceEnabled').populate('categoryId'); // Populating category data
         if (!services) return res.status(404).json({ message: "Services not found", success: false });
         return res.status(200).json({ services });
     } catch (error) {
@@ -242,6 +242,42 @@ export const updateService = async (req, res) => {
             serviceEnabled,
             serviceUrl,seoTitle,seoDescription,
             userId
+        };
+
+        const service = await Service.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
+        if (!service) return res.status(404).json({ message: "Service not found!", success: false });
+        return res.status(200).json({ service, success: true });
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({ message: error.message, success: false });
+    }
+};
+
+export const onOffService = async (req, res) => {
+    try {
+        const { id } = req.params;
+        let { serviceEnabled } = req.body;
+
+        const existingService = await Service.findById(id)
+
+        
+        const updatedData = {
+            serviceName :existingService.serviceName,
+            serviceDescription:existingService.serviceDescription,
+            serviceImage:existingService.serviceImage, // Only update image if new image is provided
+            serviceType:existingService.serviceType,
+            whyChoose:existingService.whyChoose,
+            whyChooseName:existingService.whyChooseName,
+            howWorks:existingService.howWorks,
+            howWorksName:existingService.howWorksName,
+            beforeAfterGallary:existingService.beforeAfterGallary,
+            others:existingService.others,
+            categoryId:existingService.categoryId,
+            serviceEnabled:serviceEnabled,
+            serviceUrl:existingService.serviceUrl,
+            seoTitle:existingService.seoTitle,
+            seoDescription:existingService.seoDescription,
+            userId:existingService.userId
         };
 
         const service = await Service.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });

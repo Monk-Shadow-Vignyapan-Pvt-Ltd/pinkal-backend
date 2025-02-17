@@ -107,7 +107,7 @@ export const addSubService = async (req, res) => {
 // Get all subservices
 export const getSubServices = async (req, res) => {
     try {
-        const subServices = await SubService.find().populate('serviceId'); // Populating parent service data
+        const subServices = await SubService.find().select('subServiceName subServiceImage subServiceUrl serviceId subServiceEnabled').populate('serviceId'); // Populating parent service data
         if (!subServices) return res.status(404).json({ message: "Subservices not found", success: false });
         return res.status(200).json({ subServices });
     } catch (error) {
@@ -248,6 +248,39 @@ export const updateSubService = async (req, res) => {
             subServiceEnabled,
             subServiceUrl,seoTitle,seoDescription,
             userId
+        };
+
+        const subService = await SubService.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
+        if (!subService) return res.status(404).json({ message: "Subservice not found!", success: false });
+        return res.status(200).json({ subService, success: true });
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({ message: error.message, success: false });
+    }
+};
+
+export const onOffSubService = async (req, res) => {
+    try {
+        const { id } = req.params;
+        let { subServiceEnabled } = req.body;
+
+        const existingSubService = await SubService.findById(id)
+
+        
+        const updatedData = {
+            subServiceName :existingSubService.subServiceName,
+            subServiceDescription:existingSubService.subServiceDescription,
+            subServiceImage:existingSubService.subServiceImage,
+            howWorks:existingSubService.howWorks,
+            howWorksName:existingSubService.howWorksName,
+            beforeAfterGallary:existingSubService.beforeAfterGallary,
+            others:existingSubService.others,
+            serviceId:existingSubService.serviceId,
+            subServiceEnabled:subServiceEnabled,
+            subServiceUrl:existingSubService.subServiceUrl,
+            seoTitle:existingSubService.seoTitle,
+            seoDescription:existingSubService.seoDescription,
+            userId:existingSubService.userId
         };
 
         const subService = await SubService.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });

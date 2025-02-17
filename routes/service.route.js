@@ -1,5 +1,5 @@
 import express from "express";
-import { addService, getServices, getServiceById,getServiceByUrl, deleteService, updateService,
+import { addService, getServices, getServiceById,getServiceByUrl, deleteService, updateService,onOffService,
     getServicesFrontend,getServicesBeforeAfter,cloneService,addServiceRanking,getServiceRanking,getServicesAfterRanking,
     addServiceInSearch,getServiceInSearch,getServicesAfterInSearch} from "../controllers/service.controller.js";
 import isAuthenticated from "../auth/isAuthenticated.js";
@@ -12,6 +12,7 @@ router.route("/getServices").get( getServices);
 router.route("/getServiceById/:id").put( getServiceById);
 router.route("/getServiceByUrl/:id").put( getServiceByUrl);
 router.route("/updateService/:id").post( updateService);
+router.route("/onOffService/:id").post( onOffService);
 router.route("/cloneService/:id").post( cloneService);
 router.route("/deleteService/:id").delete(deleteService);
 router.route("/getServicesFrontend").get(getServicesFrontend);

@@ -9,7 +9,7 @@ import sharp from 'sharp';
 // Add a new service
 export const addService = async (req, res) => {
     try {
-        let { serviceName, serviceDescription, serviceImage,serviceType, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,serviceUrl, userId} = req.body;
+        let { serviceName, serviceDescription, serviceImage,serviceType, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,serviceUrl,seoTitle,seoDescription, userId} = req.body;
         
         // Validate base64 image data
         if (!serviceImage || !serviceImage.startsWith('data:image') ) {
@@ -99,6 +99,7 @@ export const addService = async (req, res) => {
             categoryId,
             serviceEnabled,
             serviceUrl,
+            seoTitle,seoDescription,
             userId
         });
 
@@ -151,7 +152,7 @@ export const getServiceByUrl = async (req, res) => {
 export const updateService = async (req, res) => {
     try {
         const { id } = req.params;
-        let { serviceName, serviceDescription, serviceImage,serviceType, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,serviceUrl,userId } = req.body;
+        let { serviceName, serviceDescription, serviceImage,serviceType, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,serviceUrl,seoTitle,seoDescription,userId } = req.body;
 
         // Validate base64 image data
         if (serviceImage && !serviceImage.startsWith('data:image')) {
@@ -239,7 +240,7 @@ export const updateService = async (req, res) => {
             others,
             categoryId,
             serviceEnabled,
-            serviceUrl,
+            serviceUrl,seoTitle,seoDescription,
             userId
         };
 

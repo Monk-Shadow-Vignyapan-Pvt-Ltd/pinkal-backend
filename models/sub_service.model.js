@@ -40,6 +40,14 @@ const subServiceSchema = new mongoose.Schema({
         required:true
      },
      subServiceUrl: { type: String, required: true ,unique: true },
+     seoTitle:{
+        type: String,
+        required: false,
+      },
+     seoDescription: {
+        type: String,
+        required: false,
+      },
      userId:{
         type: mongoose.Schema.Types.ObjectId, 
           required:false

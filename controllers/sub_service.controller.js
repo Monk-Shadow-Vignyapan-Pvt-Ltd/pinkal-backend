@@ -6,7 +6,7 @@ import sharp from 'sharp';
 // Add a new subservice
 export const addSubService = async (req, res) => {
     try {
-        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,subServiceUrl,userId } = req.body;
+        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,subServiceUrl,seoTitle,seoDescription,userId } = req.body;
 
         // Validate base64 image data
         if (!subServiceImage || !subServiceImage.startsWith('data:image')) {
@@ -92,7 +92,7 @@ export const addSubService = async (req, res) => {
             others,
             serviceId,
             subServiceEnabled,
-            subServiceUrl,
+            subServiceUrl,seoTitle,seoDescription,
             userId
         });
 
@@ -160,7 +160,7 @@ export const getSubServicesByServiceId = async (req, res) => {
 export const updateSubService = async (req, res) => {
     try {
         const { id } = req.params;
-        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,subServiceUrl,userId } = req.body;
+        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,subServiceUrl,seoTitle,seoDescription,userId } = req.body;
 
         // Validate base64 image data
         if (subServiceImage && !subServiceImage.startsWith('data:image')) {
@@ -246,7 +246,7 @@ export const updateSubService = async (req, res) => {
             others,
             serviceId,
             subServiceEnabled,
-            subServiceUrl,
+            subServiceUrl,seoTitle,seoDescription,
             userId
         };
 

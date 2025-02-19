@@ -105,14 +105,85 @@ export const addSubService = async (req, res) => {
 };
 
 // Get all subservices
+// export const getSubServices = async (req, res) => {
+//     try {
+//         const subServices = await SubService.find().select('subServiceName subServiceImage subServiceUrl serviceId subServiceEnabled').populate('serviceId'); // Populating parent service data
+//         if (!subServices) return res.status(404).json({ message: "Subservices not found", success: false });
+//         return res.status(200).json({ subServices });
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).json({ message: 'Failed to fetch subservices', success: false });
+//     }
+// };
+
 export const getSubServices = async (req, res) => {
     try {
-        const subServices = await SubService.find().select('subServiceName subServiceImage subServiceUrl serviceId subServiceEnabled').populate('serviceId'); // Populating parent service data
-        if (!subServices) return res.status(404).json({ message: "Subservices not found", success: false });
-        return res.status(200).json({ subServices });
+        const subServices = await SubService.find().select('subServiceName subServiceImage subServiceUrl serviceId subServiceEnabled').populate('serviceId');
+        if (!subServices) {
+            return res.status(404).json({ message: 'Subservices not found', success: false });
+        }
+        const reversedsubServices = subServices.reverse();
+        const page = parseInt(req.query.page) || 1;
+
+        // Define the number of items per page
+        const limit = 12;
+
+        // Calculate the start and end indices for pagination
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+
+        // Paginate the reversed movies array
+        const paginatedsubServices = reversedsubServices.slice(startIndex, endIndex);
+        res.status(200).json({ subServices:paginatedsubServices, 
+            success: true ,
+            pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(subServices.length / limit),
+            totalSubServices: subServices.length,} });
     } catch (error) {
-        console.log(error);
+        console.error('Error fetching subservices:', error);
         res.status(500).json({ message: 'Failed to fetch subservices', success: false });
+    }
+};
+
+export const searchSubServices = async (req, res) => {
+    try {
+        const { search } = req.query;
+        if (!search) {
+            return res.status(400).json({ message: 'Search query is required', success: false });
+        }
+
+        const regex = new RegExp(search, 'i'); // Case-insensitive search
+
+        const subServices = await SubService.find({
+            $or: [
+                { subServiceName: regex },
+            ]
+        });
+
+        if (!subServices) {
+            return res.status(404).json({ message: 'Subservices not found', success: false });
+        }
+        const page = parseInt(req.query.page) || 1;
+
+        // Define the number of items per page
+        const limit = 12;
+
+        // Calculate the start and end indices for pagination
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+
+        // Paginate the reversed movies array
+        const paginatedsubServices = subServices.slice(startIndex, endIndex);
+        res.status(200).json({ subServices:paginatedsubServices, 
+            success: true ,
+            pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(subServices.length / limit),
+            totalSubServices: subServices.length,} });
+    } catch (error) {
+        console.error('Error searching subservices:', error);
+        res.status(500).json({ message: 'Failed to search subservices', success: false });
     }
 };
 

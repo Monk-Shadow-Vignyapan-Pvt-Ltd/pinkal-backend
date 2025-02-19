@@ -112,14 +112,85 @@ export const addService = async (req, res) => {
 };
 
 // Get all services
+// export const getServices = async (req, res) => {
+//     try {
+//         const services = await Service.find().select('serviceName serviceUrl serviceImage categoryId serviceType serviceEnabled').populate('categoryId'); // Populating category data
+//         if (!services) return res.status(404).json({ message: "Services not found", success: false });
+//         return res.status(200).json({ services });
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).json({ message: 'Failed to fetch services', success: false });
+//     }
+// };
+
 export const getServices = async (req, res) => {
     try {
-        const services = await Service.find().select('serviceName serviceUrl serviceImage categoryId serviceType serviceEnabled').populate('categoryId'); // Populating category data
-        if (!services) return res.status(404).json({ message: "Services not found", success: false });
-        return res.status(200).json({ services });
+        const services = await Service.find().select('serviceName serviceUrl serviceImage categoryId serviceType serviceEnabled').populate('categoryId');
+        if (!services) {
+            return res.status(404).json({ message: 'No services found', success: false });
+        }
+        const reversedservices = services.reverse();
+        const page = parseInt(req.query.page) || 1;
+
+        // Define the number of items per page
+        const limit = 12;
+
+        // Calculate the start and end indices for pagination
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+
+        // Paginate the reversed movies array
+        const paginatedservices = reversedservices.slice(startIndex, endIndex);
+        res.status(200).json({ services:paginatedservices, 
+            success: true ,
+            pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(services.length / limit),
+            totalServices: services.length,} });
     } catch (error) {
-        console.log(error);
+        console.error('Error fetching services:', error);
         res.status(500).json({ message: 'Failed to fetch services', success: false });
+    }
+};
+
+export const searchServices = async (req, res) => {
+    try {
+        const { search } = req.query;
+        if (!search) {
+            return res.status(400).json({ message: 'Search query is required', success: false });
+        }
+
+        const regex = new RegExp(search, 'i'); // Case-insensitive search
+
+        const services = await Service.find({
+            $or: [
+                { serviceName: regex },
+            ]
+        });
+
+        if (!services) {
+            return res.status(404).json({ message: 'No services found', success: false });
+        }
+        const page = parseInt(req.query.page) || 1;
+
+        // Define the number of items per page
+        const limit = 12;
+
+        // Calculate the start and end indices for pagination
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+
+        // Paginate the reversed movies array
+        const paginatedservices = services.slice(startIndex, endIndex);
+        res.status(200).json({ services:paginatedservices, 
+            success: true ,
+            pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(services.length / limit),
+            totalServices: services.length,} });
+    } catch (error) {
+        console.error('Error searching services:', error);
+        res.status(500).json({ message: 'Failed to search services', success: false });
     }
 };
 

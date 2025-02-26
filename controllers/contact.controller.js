@@ -3,7 +3,7 @@ import { Contact } from '../models/contact.model.js'; // Adjust path based on yo
 // Add a new contact
 export const addContact = async (req, res) => {
     try {
-        const { name, phone, email, subject, message, isContactClose,userId } = req.body;
+        const { name, phone, email, subject, message, isContactClose,userId ,followups} = req.body;
 
         // Validate required fields
         if (!name || !phone || !email || !message) {
@@ -27,6 +27,7 @@ export const addContact = async (req, res) => {
             existingContact.message = message;
             existingContact.isContactClose = isContactClose;
             existingContact.userId = userId;
+            existingContact.followups = followups;
             // Save the updated contact
             await existingContact.save();
 
@@ -45,7 +46,8 @@ export const addContact = async (req, res) => {
             subject,
             message,
             isContactClose,
-            userId
+            userId,
+            followups
         });
 
         // Save the new contact to the database
@@ -83,9 +85,9 @@ export const getContacts = async (req, res) => {
 export const updateContact = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, phone, email, subject, message, isContactClose ,userId} = req.body;
+        const { name, phone, email, subject, message, isContactClose ,userId,followups} = req.body;
 
-        const updatedData = {name, phone, email, subject, message, isContactClose,userId};
+        const updatedData = {name, phone, email, subject, message, isContactClose,userId,followups};
 
         const contact = await Contact.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
         if (!contact) return res.status(404).json({ message: "Contact not found!", success: false });

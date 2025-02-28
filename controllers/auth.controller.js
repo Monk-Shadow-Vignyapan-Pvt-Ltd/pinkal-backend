@@ -274,7 +274,7 @@ export const generateSitemap = async (req = null, res = null) => {
           <h1>HTML Sitemap</h1>
           <ul>
               ${dynamicRoutes
-                .map(route => `<li><a href="https://pinkalhealth.com${route}">${route}</a></li>`)
+                .map(route => `<li><a href="https://pinkalhealth.com${route}">https://pinkalhealth.com${route}</a></li>`)
                 .join("\n")}
           </ul>
       </body>

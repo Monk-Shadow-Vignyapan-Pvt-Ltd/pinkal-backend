@@ -5,6 +5,32 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import bodyParser from "body-parser";
 import routes from "./routes/index.js";
+import fs from "fs";
+import path from "path";
+import cron from "node-cron";
+import { generateSitemap} from "./controllers/auth.controller.js";
+
+const sitemapPath = "../pinkal-frontend/dist/sitemap.xml";
+const sitemapHTMLPath = "../pinkal-frontend/dist/sitemap.html";
+
+// Function to check if sitemaps exist, and generate if missing
+const ensureSitemapExists = async () => {
+  if (!fs.existsSync(sitemapPath) || !fs.existsSync(sitemapHTMLPath)) {
+    console.log("⚠️ Sitemap files not found. Generating now...");
+    await generateSitemap();
+  } else {
+    console.log("✅ Sitemap files already exist.");
+  }
+};
+
+// Ensure sitemap exists before scheduling
+ensureSitemapExists().then(() => {
+  // Run sitemap generation every day at midnight
+  cron.schedule("0 0 * * *", async () => {
+    console.log("🕛 Running scheduled sitemap generation...");
+    await generateSitemap();
+  });
+});
 
 dotenv.config();
 // connect db

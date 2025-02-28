@@ -119,6 +119,18 @@ export const updateBlog = async (req, res) => {
     }
 };
 
+export const getBlogsFrontend = async (req, res) => {
+    try {
+        const blogs = await Blog.find()
+        .select('blogUrl')
+        if (!blogs) return res.status(404).json({ message: "Blogs not found", success: false });
+        return res.status(200).json({ blogs });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to fetch blogs', success: false });
+    }
+};
+
 // Delete blog by ID
 export const deleteBlog = async (req, res) => {
     try {

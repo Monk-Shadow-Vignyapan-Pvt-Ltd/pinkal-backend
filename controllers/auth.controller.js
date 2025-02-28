@@ -2,6 +2,12 @@ import { User } from '../models/user.model.js';
 import jwt from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
 import sharp from 'sharp';
+import { Service } from '../models/service.model.js';
+import { SubService } from '../models/sub_service.model.js';
+import { Blog } from '../models/blog.model.js';
+import { Seo } from '../models/seo.model.js';
+import path from "path";
+import fs from "fs";
 
 // Signup Controller
 export const addUser = async (req, res) => {
@@ -189,5 +195,102 @@ export const deleteUser = async (req, res) => {
         console.log(error);
         res.status(500).json({ message: 'Failed to delete user', success: false });
     }
+};
+
+const getDynamicRoutes = async () => {
+  try {
+      // const [serviceResponse, subServiceResponse, blogResponse, seoResponse] = await Promise.all([
+      //     axios.get(`${API_BASE_URL}/services/getServicesFrontend`),
+      //     axios.get(`${API_BASE_URL}/subServices/getSubServicesFrontend`),
+      //     axios.get(`${API_BASE_URL}/blogs/getBlogsFrontend`),
+      //     axios.get(`${API_BASE_URL}/seos/getAllSeo`),
+      // ]);
+      const services = await Service.find().select('serviceUrl');
+      const subServices = await SubService.find().select('subServiceUrl');
+      const blogs = await Blog.find().select('blogUrl');
+      const seoEntries = await Seo.find();
+
+
+      const serviceRoutes = services?.map(service => `/service/${service.serviceUrl}`) || [];
+      const subServiceRoutes = subServices?.map(subService => `/sub-service/${subService.subServiceUrl}`) || [];
+      const blogRoutes = blogs?.map(blog => `/blog-detail/${blog.blogUrl}`) || [];
+      const seoRoutes = seoEntries?.map(seo => `/${seo.seoUrl}`) || [];
+
+      return [...serviceRoutes, ...subServiceRoutes, ...blogRoutes, ...seoRoutes];
+  } catch (error) {
+      console.error("Error fetching dynamic routes:", error);
+      return [];
+  }
+};
+
+export const generateSitemap = async (req = null, res = null) => {
+  try {
+    const dynamicRoutes = await getDynamicRoutes();
+
+    const urls = [
+      { url: "/", changefreq: "daily", priority: 1.0 },
+      { url: "/privacy-policy", changefreq: "monthly", priority: 0.7 },
+      ...dynamicRoutes.map(route => ({ url: route, changefreq: "weekly", priority: 0.8 })),
+    ];
+
+    // Generate XML Sitemap
+    const sitemapContent = `
+      <?xml version="1.0" encoding="UTF-8"?>
+      <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+        ${urls
+          .map(
+            ({ url, changefreq, priority }) => `
+          <url>
+            <loc>https://pinkalhealth.com${url}</loc>
+            <changefreq>${changefreq}</changefreq>
+            <priority>${priority}</priority>
+          </url>`
+          )
+          .join("\n")}
+      </urlset>
+    `.trim();
+
+    const sitemapPath = "../pinkal-frontend/dist/sitemap.xml" // Save in `public` folder
+    fs.writeFileSync(sitemapPath, sitemapContent,'utf8');
+    console.log(`Sitemap XML generated at: ${sitemapPath}`);
+
+    // Generate HTML Sitemap
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>HTML Sitemap</title>
+          <style>
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              h1 { color: #333; }
+              ul { list-style-type: none; padding: 0; }
+              li { margin: 5px 0; }
+              a { text-decoration: none; color: blue; }
+          </style>
+      </head>
+      <body>
+          <h1>HTML Sitemap</h1>
+          <ul>
+              ${dynamicRoutes
+                .map(route => `<li><a href="https://pinkalhealth.com${route}">${route}</a></li>`)
+                .join("\n")}
+          </ul>
+      </body>
+      </html>
+    `.trim();
+
+    const sitemapHTMLPath = "../pinkal-frontend/dist/sitemap.html"; // Save in `public` folder
+    fs.writeFileSync(sitemapHTMLPath, htmlContent,'utf8');
+    console.log(`Sitemap HTML generated at: ${sitemapHTMLPath}`);
+
+    if (res) {
+      return res.status(200).json({ message: "Sitemap generated successfully", success: true });
+    }
+  } catch (error) {
+    console.error("Error generating sitemap:", error);
+    res.status(500).json({ message: "Failed to generate sitemap", success: false });
+  }
 };
 

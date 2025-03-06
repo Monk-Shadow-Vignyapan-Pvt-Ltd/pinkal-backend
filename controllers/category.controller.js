@@ -6,7 +6,8 @@ import sharp from 'sharp';
 // Add a new category
 export const addCategory = async (req, res) => {
     try {
-        const { categoryName,categoryDescription,rank, imageBase64,userId } = req.body;
+        const { categoryName,categoryDescription,rank, imageBase64,userId, categoryUrl,
+            seoTitle,seoDescription, } = req.body;
         // Validate base64 image data
         if (!imageBase64 || !imageBase64.startsWith('data:image')) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
@@ -30,6 +31,8 @@ export const addCategory = async (req, res) => {
             categoryImage: compressedBase64, // Store the base64 string in MongoDB
             categoryDescription:req.body.description,
             userId:req.body.userId,
+            categoryUrl,
+            seoTitle,seoDescription,
             rank
         });
 
@@ -70,7 +73,8 @@ export const getCategoryById = async (req, res) => {
 export const updateCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const { categoryName, imageBase64,rank, categoryDescription,userId } = req.body;
+        const { categoryName, imageBase64,rank, categoryDescription,userId,categoryUrl,
+            seoTitle,seoDescription, } = req.body;
 
         // Validate base64 image data
         if (imageBase64 && !imageBase64.startsWith('data:image')) {
@@ -94,6 +98,8 @@ export const updateCategory = async (req, res) => {
             categoryDescription:req.body.description,
             userId:req.body.userId,
             rank,
+            categoryUrl,
+            seoTitle,seoDescription,
             ...(compressedBase64 && { categoryImage: compressedBase64 }) // Only update image if new image is provided
         };
 

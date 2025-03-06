@@ -1,4 +1,37 @@
 import { Contact } from '../models/contact.model.js'; // Adjust path based on your file structure
+import nodemailer from 'nodemailer';
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'hello@pinkalhealth.com', // Your email
+        pass: 'Hello##2425' // Your email password or app password
+    }
+});
+
+const sendContactEmail = async (contact) => {
+    const mailOptions = {
+        from: 'hello@pinkalhealth.com',
+        to: 'Info@pinkalmedicalaesthetics.com',
+        subject: `New Contact Submission - ${contact.subject || 'No Subject'}`,
+        html: `
+            <h3>Contact Details</h3>
+            <p><strong>Name:</strong> ${contact.name}</p>
+            <p><strong>Email:</strong> ${contact.email}</p>
+            <p><strong>Phone:</strong> ${contact.phone}</p>
+            <p><strong>Message:</strong> ${contact.message}</p>
+
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('Contact email sent successfully');
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+};
+
 
 // Add a new contact
 export const addContact = async (req, res) => {
@@ -30,6 +63,7 @@ export const addContact = async (req, res) => {
             existingContact.followups = followups;
             // Save the updated contact
             await existingContact.save();
+            await sendContactEmail(existingContact);
 
             return res.status(200).json({ 
                 message: 'Contact updated successfully', 
@@ -52,6 +86,7 @@ export const addContact = async (req, res) => {
 
         // Save the new contact to the database
         await newContact.save();
+        await sendContactEmail(newContact);
 
         res.status(201).json({ 
             message: 'Contact added successfully', 

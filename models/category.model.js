@@ -7,6 +7,15 @@ const categorySchema = new mongoose.Schema({
         type: String, // Store image as base64 or use a URL reference
         required: true,
       },
+      categoryUrl: { type: String, required: true ,unique: true },
+      seoTitle:{
+         type: String,
+         required: false,
+       },
+      seoDescription: {
+         type: String,
+         required: false,
+       },
     rank:{
       type: String, // Store image as base64 or use a URL reference
       required: true,    

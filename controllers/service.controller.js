@@ -125,7 +125,7 @@ export const addService = async (req, res) => {
 
 export const getServices = async (req, res) => {
     try {
-        const services = await Service.find().select('serviceName serviceUrl serviceImage categoryId serviceType serviceEnabled').populate('categoryId');
+        const services = await Service.find().select('serviceName serviceUrl serviceDescription serviceImage categoryId serviceType serviceEnabled').populate('categoryId');
         if (!services) {
             return res.status(404).json({ message: 'No services found', success: false });
         }
@@ -216,6 +216,21 @@ export const getServiceByUrl = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Failed to fetch service', success: false });
+    }
+};
+
+export const getServicesByCategory = async (req, res) => {
+    try {
+        const { id } = req.params; // Extract the service ID from the request parameters
+        const services = await Service.find({ categoryId: id })
+        .select('serviceName serviceUrl serviceDescription serviceImage categoryId serviceType serviceEnabled'); // Correctly query by serviceId
+        if (!services) {
+            return res.status(404).json({ message: "services not found!", success: false });
+        }
+        return res.status(200).json({ services, success: true });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch services", success: false });
     }
 };
 

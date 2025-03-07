@@ -30,8 +30,8 @@ export const getSales = async (req, res) => {
         const enhancedSales = await Promise.all(
             sales.map(async (sale) => {
 
-                const service =await Service.find({ _id: sale.serviceId});
-                const subService = await SubService.find({ _id: sale.serviceId});
+                const service =await Service.findOne({ _id: sale.serviceId});
+                const subService = await SubService.findOne({ _id: sale.serviceId});
                 
                 if (service) {
                     const serviceImage = service.serviceImage ;

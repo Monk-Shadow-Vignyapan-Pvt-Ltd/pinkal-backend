@@ -10,27 +10,27 @@ import path from "path";
 import cron from "node-cron";
 import { generateSitemap} from "./controllers/auth.controller.js";
 
-const sitemapPath = "../pinkal-frontend/dist/sitemap.xml";
-const sitemapHTMLPath = "../pinkal-frontend/dist/sitemap.html";
+// const sitemapPath = "../pinkal-frontend/dist/sitemap.xml";
+// const sitemapHTMLPath = "../pinkal-frontend/dist/sitemap.html";
 
-// Function to check if sitemaps exist, and generate if missing
-const ensureSitemapExists = async () => {
-  if (!fs.existsSync(sitemapPath) || !fs.existsSync(sitemapHTMLPath)) {
-    console.log("⚠️ Sitemap files not found. Generating now...");
-    await generateSitemap();
-  } else {
-    console.log("✅ Sitemap files already exist.");
-  }
-};
+// // Function to check if sitemaps exist, and generate if missing
+// const ensureSitemapExists = async () => {
+//   if (!fs.existsSync(sitemapPath) || !fs.existsSync(sitemapHTMLPath)) {
+//     console.log("⚠️ Sitemap files not found. Generating now...");
+//     await generateSitemap();
+//   } else {
+//     console.log("✅ Sitemap files already exist.");
+//   }
+// };
 
-// Ensure sitemap exists before scheduling
-ensureSitemapExists().then(() => {
-  // Run sitemap generation every day at midnight
-  cron.schedule("0 0 * * *", async () => {
-    console.log("🕛 Running scheduled sitemap generation...");
-    await generateSitemap();
-  });
-});
+// // Ensure sitemap exists before scheduling
+// ensureSitemapExists().then(() => {
+//   // Run sitemap generation every day at midnight
+//   cron.schedule("0 0 * * *", async () => {
+//     console.log("🕛 Running scheduled sitemap generation...");
+//     await generateSitemap();
+//   });
+// });
 
 dotenv.config();
 // connect db
@@ -78,6 +78,7 @@ app.use("/api/v1/seos", routes.seoRoute);
 app.use("/api/v1/newsletters", routes.newsletterRoute);
 app.use("/api/v1/globals", routes.globalSearchRoute);
 app.use("/api/v1/gallaries", routes.gallaryRoute);
+app.use("/api/v1/sales", routes.saleRoute);
 
 app.listen(PORT, () => {
     console.log(`server running at port ${PORT}`);

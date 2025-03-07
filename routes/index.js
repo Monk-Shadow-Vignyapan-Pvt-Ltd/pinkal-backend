@@ -15,6 +15,7 @@ import seoRoute from "./seo.route.js";
 import newsletterRoute from "./newsletter.route.js";
 import globalSearchRoute from "./global_search.route.js";
 import gallaryRoute from "./gallary.route.js";
+import saleRoute from "./sale.route.js";
 
 const routes = {
   categoryRoute,
@@ -33,7 +34,8 @@ const routes = {
   seoRoute,
   newsletterRoute,
   globalSearchRoute,
-  gallaryRoute
+  gallaryRoute,
+  saleRoute
 };
 
 export default routes;

@@ -1,4 +1,6 @@
 import { Sale } from '../models/sale.model.js';
+import { Service } from '../models/service.model.js';
+import { SubService } from '../models/sub_service.model.js';
 
 // Add a new sale
 export const addSale = async (req, res) => {
@@ -25,8 +27,25 @@ export const addSale = async (req, res) => {
 export const getSales = async (req, res) => {
     try {
         const sales = await Sale.find();
-        if (!sales) return res.status(404).json({ message: "No sales found", success: false });
-        return res.status(200).json({ sales, success: true });
+        const enhancedSales = await Promise.all(
+            sales.map(async (sale) => {
+
+                const service =await Service.find({ _id: sale.serviceId});
+                const subService = await SubService.find({ _id: sale.serviceId});
+                
+                if (service) {
+                    const serviceImage = service.serviceImage ;
+                    return { ...sale.toObject(), serviceImage }; // Convert Mongoose document to plain object
+                }else if(subService){
+                    const serviceImage = subService.subServiceImage ;
+                    return { ...sale.toObject(), serviceImage }; // Convert Mongoose document to plain object
+                }
+
+                return sale.toObject(); // If no invoiceId, return appointment as-is
+            })
+        );
+        if (!enhancedSales) return res.status(404).json({ message: "No sales found", success: false });
+        return res.status(200).json({ sales: enhancedSales, success: true });
     } catch (error) {
         console.error('Error fetching sales:', error);
         res.status(500).json({ message: 'Failed to fetch sales', success: false });

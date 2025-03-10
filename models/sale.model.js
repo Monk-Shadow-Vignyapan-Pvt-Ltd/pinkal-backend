@@ -11,6 +11,10 @@ const saleSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
+      others: {
+              type: mongoose.Schema.Types.Mixed,  // Use Mixed for flexible structure (JSON-like object)
+              required: false
+          },
       rank:{
         type: String, // Store image as base64 or use a URL reference
         required: true,    

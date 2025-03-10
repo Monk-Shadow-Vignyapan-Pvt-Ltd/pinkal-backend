@@ -1,16 +1,61 @@
 import { Sale } from '../models/sale.model.js';
 import { Service } from '../models/service.model.js';
 import { SubService } from '../models/sub_service.model.js';
+import sharp from 'sharp';
 
 // Add a new sale
 export const addSale = async (req, res) => {
     try {
-        const { serviceId, saleDescription, rank, saleEnabled, userId } = req.body;
+        let { serviceId, saleDescription, rank,others, saleEnabled, userId } = req.body;
+         // Compress image function
+                const compressImage = async (base64Image) => {
+                    const base64Data = base64Image.split(';base64,').pop();
+                    const buffer = Buffer.from(base64Data, 'base64');
+                    const compressedBuffer = await sharp(buffer)
+                        .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+                        .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+                        .toBuffer();
+                    return `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+                };
+        
+                // Compress all images in the gallery
+                const compressAllImages = async (others) => {
+                    if (!Array.isArray(others)) return []; // Return empty array if others is not valid
+        
+                    return await Promise.all(
+                        others.map(async (item) => {
+                            try {
+                                if (!Array.isArray(item.images)) {
+                                    return item;
+                                }
+        
+                                const compressedImages = await Promise.all(
+                                    item.images.map(async (image) => {
+                                        if (!image.file || !image.file.startsWith('data:image')) {
+                                            return null;
+                                        }
+                                        const compressedFile = await compressImage(image.file);
+                                        return { ...image, file: compressedFile };
+                                    })
+                                );
+        
+                                return { ...item, images: compressedImages.filter(image => image !== null) };
+                            } catch (err) {
+                                console.error("Error processing item:", item, err);
+                                return item; // Fallback to original item if error occurs
+                            }
+                        })
+                    );
+                };
+        
+                // Process and compress images
+                others = await compressAllImages(others);
         
         const sale = new Sale({
             serviceId,
             saleDescription,
             rank,
+            others,
             saleEnabled,
             userId
         });
@@ -68,11 +113,55 @@ export const getSaleById = async (req, res) => {
 export const updateSale = async (req, res) => {
     try {
         const { id } = req.params;
-        const { serviceId, saleDescription, rank, saleEnabled, userId } = req.body;
+        let { serviceId, saleDescription, rank,others, saleEnabled, userId } = req.body;
+
+        // Compress image function
+        const compressImage = async (base64Image) => {
+            const base64Data = base64Image.split(';base64,').pop();
+            const buffer = Buffer.from(base64Data, 'base64');
+            const compressedBuffer = await sharp(buffer)
+                .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+                .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+                .toBuffer();
+            return `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+        };
+
+        // Compress all images in the gallery
+        const compressAllImages = async (others) => {
+            if (!Array.isArray(others)) return []; // Return empty array if others is not valid
+
+            return await Promise.all(
+                others.map(async (item) => {
+                    try {
+                        if (!Array.isArray(item.images)) {
+                            return item;
+                        }
+
+                        const compressedImages = await Promise.all(
+                            item.images.map(async (image) => {
+                                if (!image.file || !image.file.startsWith('data:image')) {
+                                    return null;
+                                }
+                                const compressedFile = await compressImage(image.file);
+                                return { ...image, file: compressedFile };
+                            })
+                        );
+
+                        return { ...item, images: compressedImages.filter(image => image !== null) };
+                    } catch (err) {
+                        console.error("Error processing item:", item, err);
+                        return item; // Fallback to original item if error occurs
+                    }
+                })
+            );
+        };
+
+        // Process and compress images
+        others = await compressAllImages(others);
         
         const updatedSale = await Sale.findByIdAndUpdate(
             id,
-            { serviceId, saleDescription, rank, saleEnabled, userId },
+            { serviceId, saleDescription, rank,others, saleEnabled, userId },
             { new: true, runValidators: true }
         );
 

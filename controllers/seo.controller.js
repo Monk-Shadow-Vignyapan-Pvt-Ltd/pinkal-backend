@@ -23,10 +23,10 @@ export const addSeo = async (req, res) => {
             .replace(/-+/g, '-');               // Replace multiple hyphens with a single hyphen
 
         const existingSeo = await Seo.findOne({ pageName });
+            let oldUrls = existingSeo.oldUrls || [];
             if (existingSeo) {
-                let oldUrls = existingSeo.oldUrls || [];
                 if (existingSeo.seoUrl && existingSeo.seoUrl !== urlFriendlySeoUrl && !oldUrls.includes(existingSeo.seoUrl)) {
-                    oldUrls.push(existingSeo.seoUrl);
+                   await oldUrls.push(existingSeo.seoUrl);
                 }
                 existingSeo.pageName = pageName;
                 existingSeo.seoTitle = seoTitle;
@@ -36,11 +36,12 @@ export const addSeo = async (req, res) => {
                 existingSeo.oldUrls = oldUrls;
     
                 // Save the updated contact
-                await existingSeo.save();
+                //await existingSeo.save();
+                const updatedSeo = await Seo.findByIdAndUpdate(existingSeo._id, existingSeo, { new: true, runValidators: true });
     
                 return res.status(200).json({ 
                     message: 'Seo updated successfully', 
-                    seo: existingSeo, 
+                    seo: updatedSeo, 
                     success: true 
                 });
             }

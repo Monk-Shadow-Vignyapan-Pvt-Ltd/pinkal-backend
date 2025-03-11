@@ -76,6 +76,17 @@ export const updateCategory = async (req, res) => {
         const { categoryName, imageBase64,rank, categoryDescription,userId,categoryUrl,
             seoTitle,seoDescription, } = req.body;
 
+        const existingCategory = await Category.findById(id);
+                if (!existingCategory) {
+                    return res.status(404).json({ message: "Category not found!", success: false });
+                }
+        
+                // Initialize oldUrls array and add the previous serviceUrl if it's different
+                let oldUrls = existingCategory.oldUrls || [];
+                if (existingCategory.categoryUrl && existingCategory.categoryUrl !== categoryUrl && !oldUrls.includes(existingCategory.categoryUrl)) {
+                    oldUrls.push(existingCategory.categoryUrl);
+                }
+
         // Validate base64 image data
         if (imageBase64 && !imageBase64.startsWith('data:image')) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
@@ -99,6 +110,7 @@ export const updateCategory = async (req, res) => {
             userId:req.body.userId,
             rank,
             categoryUrl,
+            oldUrls,
             seoTitle,seoDescription,
             ...(compressedBase64 && { categoryImage: compressedBase64 }) // Only update image if new image is provided
         };

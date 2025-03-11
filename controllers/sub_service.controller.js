@@ -233,6 +233,17 @@ export const updateSubService = async (req, res) => {
         const { id } = req.params;
         let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,subServiceUrl,seoTitle,seoDescription,userId } = req.body;
 
+        const existingSubService = await SubService.findById(id);
+                if (!existingSubService) {
+                    return res.status(404).json({ message: "Sub Service not found!", success: false });
+                }
+        
+                // Initialize oldUrls array and add the previous serviceUrl if it's different
+                let oldUrls = existingSubService.oldUrls || [];
+                if (existingSubService.subServiceUrl && existingSubService.subServiceUrl !== subServiceUrl && !oldUrls.includes(existingSubService.subServiceUrl)) {
+                    oldUrls.push(existingSubService.subServiceUrl);
+                }
+
         // Validate base64 image data
         if (subServiceImage && !subServiceImage.startsWith('data:image')) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
@@ -318,7 +329,8 @@ export const updateSubService = async (req, res) => {
             serviceId,
             subServiceEnabled,
             subServiceUrl,seoTitle,seoDescription,
-            userId
+            userId,
+            oldUrls
         };
 
         const subService = await SubService.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
@@ -351,7 +363,8 @@ export const onOffSubService = async (req, res) => {
             subServiceUrl:existingSubService.subServiceUrl,
             seoTitle:existingSubService.seoTitle,
             seoDescription:existingSubService.seoDescription,
-            userId:existingSubService.userId
+            userId:existingSubService.userId,
+            oldUrls:existingSubService.oldUrls
         };
 
         const subService = await SubService.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
@@ -447,3 +460,4 @@ export const cloneSubService = async (req, res) => {
         res.status(500).json({ message: 'Failed to clone subService', success: false });
     }
 };
+

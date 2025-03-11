@@ -21,7 +21,11 @@ const seoSchema = new mongoose.Schema({
       seoUrl:{
         type: String,
         required: true,
-      }
+      },
+       oldUrls: {
+              type: mongoose.Schema.Types.Mixed,  // Use Mixed for flexible structure (JSON-like object)
+              required: false
+          },
     
 }, { timestamps: true });
 

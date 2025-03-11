@@ -52,6 +52,10 @@ const serviceSchema = new mongoose.Schema({
         required:true
      },
      serviceUrl: { type: String, required: true ,unique: true },
+     oldUrls: {
+        type: mongoose.Schema.Types.Mixed,  // Use Mixed for flexible structure (JSON-like object)
+        required: false
+    },
      seoTitle:{
         type: String,
         required: false,

@@ -239,7 +239,17 @@ export const updateService = async (req, res) => {
     try {
         const { id } = req.params;
         let { serviceName, serviceDescription, serviceImage,serviceType, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,serviceUrl,seoTitle,seoDescription,userId } = req.body;
+         
+        const existingService = await Service.findById(id);
+        if (!existingService) {
+            return res.status(404).json({ message: "Service not found!", success: false });
+        }
 
+        // Initialize oldUrls array and add the previous serviceUrl if it's different
+        let oldUrls = existingService.oldUrls || [];
+        if (existingService.serviceUrl && existingService.serviceUrl !== serviceUrl && !oldUrls.includes(existingService.serviceUrl)) {
+            oldUrls.push(existingService.serviceUrl);
+        }
         // Validate base64 image data
         if (serviceImage && !serviceImage.startsWith('data:image')) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
@@ -327,7 +337,8 @@ export const updateService = async (req, res) => {
             categoryId,
             serviceEnabled,
             serviceUrl,seoTitle,seoDescription,
-            userId
+            userId,
+            oldUrls 
         };
 
         const service = await Service.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
@@ -363,7 +374,8 @@ export const onOffService = async (req, res) => {
             serviceUrl:existingService.serviceUrl,
             seoTitle:existingService.seoTitle,
             seoDescription:existingService.seoDescription,
-            userId:existingService.userId
+            userId:existingService.userId,
+            oldUrls:existingService.oldUrls
         };
 
         const service = await Service.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
@@ -585,6 +597,7 @@ export const getServicesAfterInSearch = async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch ranked services', success: false });
     }
 };
+
 
 
 

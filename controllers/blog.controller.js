@@ -87,6 +87,17 @@ export const updateBlog = async (req, res) => {
         const { id } = req.params;
         const { content,blogTitle,blogImage,blogDescription,blogUrl,seoTitle,seoDescription,userId } = req.body;
 
+        const existingBlog = await Blog.findById(id);
+                        if (!existingBlog) {
+                            return res.status(404).json({ message: "Blog not found!", success: false });
+                        }
+                
+                        // Initialize oldUrls array and add the previous serviceUrl if it's different
+                        let oldUrls = existingBlog.oldUrls || [];
+                        if (existingBlog.blogUrl && existingBlog.blogUrl !== blogUrl && !oldUrls.includes(existingBlog.blogUrl)) {
+                            oldUrls.push(existingBlog.blogUrl);
+                        }
+
         // Validate blog content
         if (!content || typeof content !== 'string') {
             return res.status(400).json({ message: 'Invalid blog content', success: false });
@@ -106,7 +117,7 @@ export const updateBlog = async (req, res) => {
 
         const updatedData = { blog:content,blogTitle,
             blogDescription,
-            blogImage:compressedBase64,userId, blogUrl,seoTitle,seoDescription,};
+            blogImage:compressedBase64,userId, blogUrl,oldUrls,seoTitle,seoDescription,};
 
         const updatedBlog = await Blog.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
         if (!updatedBlog) {

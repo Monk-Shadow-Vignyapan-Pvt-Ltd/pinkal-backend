@@ -1,4 +1,8 @@
 import { Seo } from '../models/seo.model.js';
+import { Blog } from '../models/blog.model.js';
+import { Category } from '../models/category.model.js';
+import { Service } from '../models/service.model.js';
+import { SubService } from '../models/sub_service.model.js';
 
 // Add a new SEO entry
 export const addSeo = async (req, res) => {
@@ -20,11 +24,16 @@ export const addSeo = async (req, res) => {
 
         const existingSeo = await Seo.findOne({ pageName });
             if (existingSeo) {
+                let oldUrls = existingSeo.oldUrls || [];
+                if (existingSeo.seoUrl && existingSeo.seoUrl !== urlFriendlySeoUrl && !oldUrls.includes(existingSeo.seoUrl)) {
+                    oldUrls.push(existingSeo.seoUrl);
+                }
                 existingSeo.pageName = pageName;
                 existingSeo.seoTitle = seoTitle;
                 existingSeo.seoDescription = seoDescription;
                 existingSeo.blogOrServiceId = blogOrServiceId;
                 existingSeo.seoUrl = urlFriendlySeoUrl;
+                existingSeo.oldUrls = oldUrls;
     
                 // Save the updated contact
                 await existingSeo.save();
@@ -57,10 +66,23 @@ export const addSeo = async (req, res) => {
 export const getAllSeo = async (req, res) => {
     try {
         const seoEntries = await Seo.find();
-        if (!seoEntries || seoEntries.length === 0) {
+        if (!seoEntries) {
             return res.status(404).json({ message: "No SEO entries found", success: false });
         }
-        res.status(200).json({ seoEntries, success: true });
+        const services = await Service.find().select('serviceUrl oldUrls').populate('categoryId');
+        const subServices = await SubService.find().select('subServiceUrl oldUrls').populate('serviceId');
+        const blogs = await Blog.find().select('blogUrl oldUrls');
+        const categories = await Category.find().select('categoryUrl oldUrls');
+
+        const mergedEntries = {
+            seoEntries, // Keep it as an array
+            services,
+            subServices,
+            blogs,
+            categories
+        };
+
+        res.status(200).json({ seoEntries:mergedEntries, success: true });
     } catch (error) {
         console.error('Error fetching SEO entries:', error);
         res.status(500).json({ message: 'Failed to fetch SEO entries', success: false });

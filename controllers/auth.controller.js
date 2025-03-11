@@ -210,9 +210,12 @@ const getDynamicRoutes = async () => {
       const blogs = await Blog.find().select('blogUrl');
       const seoEntries = await Seo.find();
 
+      const enabledServices = services?.filter(service => service.serviceEnabled)
+      const enabledSubServices = subServices?.filter(subService => subService.subServiceEnabled)
 
-      const serviceRoutes = services?.filter(service => service.serviceEnabled)?.map(service => `/service/${service.serviceUrl}`) || [];
-      const subServiceRoutes = subServices?.filter(subService => subService.subServiceEnabled)?.map(subService => `/sub-service/${subService.subServiceUrl}`) || [];
+
+      const serviceRoutes = enabledServices?.map(service => `/service/${service.serviceUrl}`) || [];
+      const subServiceRoutes = enabledSubServices?.map(subService => `/sub-service/${subService.subServiceUrl}`) || [];
       const blogRoutes = blogs?.map(blog => `/blog-detail/${blog.blogUrl}`) || [];
       const seoRoutes = seoEntries?.map(seo => `/${seo.seoUrl}`) || [];
 

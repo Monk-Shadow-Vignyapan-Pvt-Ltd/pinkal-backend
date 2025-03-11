@@ -205,14 +205,14 @@ const getDynamicRoutes = async () => {
       //     axios.get(`${API_BASE_URL}/blogs/getBlogsFrontend`),
       //     axios.get(`${API_BASE_URL}/seos/getAllSeo`),
       // ]);
-      const services = await Service.find().select('serviceUrl');
-      const subServices = await SubService.find().select('subServiceUrl');
+      const services = await Service.find().select('serviceUrl serviceEnabled');
+      const subServices = await SubService.find().select('subServiceUrl subServiceEnabled');
       const blogs = await Blog.find().select('blogUrl');
       const seoEntries = await Seo.find();
 
 
-      const serviceRoutes = services?.map(service => `/service/${service.serviceUrl}`) || [];
-      const subServiceRoutes = subServices?.map(subService => `/sub-service/${subService.subServiceUrl}`) || [];
+      const serviceRoutes = services?.filter(service => service.serviceEnabled)?.map(service => `/service/${service.serviceUrl}`) || [];
+      const subServiceRoutes = subServices?.filter(subService => subService.subServiceEnabled)?.map(subService => `/sub-service/${subService.subServiceUrl}`) || [];
       const blogRoutes = blogs?.map(blog => `/blog-detail/${blog.blogUrl}`) || [];
       const seoRoutes = seoEntries?.map(seo => `/${seo.seoUrl}`) || [];
 

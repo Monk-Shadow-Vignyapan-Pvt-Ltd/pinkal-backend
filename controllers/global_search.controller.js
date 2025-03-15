@@ -39,7 +39,7 @@ export const globalSearch = async (req, res) => {
     let totalResultsCount = 0;
 
     // Loop through each collection and search
-    for (const [collectionName, { searchableFields, resultFields }] of Object.entries(collectionsToSearch)) {
+    for (const [collectionName, { searchableFields, resultFields,filter  }] of Object.entries(collectionsToSearch)) {
       const collection = mongoose.connection.collection(collectionName);
 
       const searchConditions = searchableFields.map((field) => {

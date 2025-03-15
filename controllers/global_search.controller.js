@@ -16,10 +16,12 @@ export const globalSearch = async (req, res) => {
       services: {
         searchableFields: ["serviceName", "serviceDescription", "whyChoose", "howWorks", "others"],
         resultFields: ["_id","serviceUrl", "serviceName", "serviceDescription",],
+        filter: { serviceEnabled: true },
       },
       subservices: {
         searchableFields: ["subServiceName", "subServiceDescription", "howWorks", "others"],
         resultFields: ["_id","subServiceUrl", "subServiceName", "subServiceDescription",],
+        filter: { subServiceEnabled: true },
       },
       blogs: {
         searchableFields: ["blogTitle", "blogDescription", "blog"],

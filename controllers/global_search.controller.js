@@ -65,6 +65,11 @@ export const globalSearch = async (req, res) => {
         return { [field]: searchRegex };
       });
 
+      // Combine filter condition with search conditions
+      const queryFilter = { 
+        $and: [filter, { $or: searchConditions }] 
+      };
+
       // Create a projection object to include only the desired fields
       const projection = resultFields.reduce((acc, field) => {
         acc[field] = 1; // Include these fields
@@ -72,7 +77,7 @@ export const globalSearch = async (req, res) => {
       }, {});
 
       const results = await collection
-        .find({ $or: searchConditions }, { projection })
+        .find(queryFilter, { projection })
         .toArray();
 
       // Increment the total results count

@@ -26,10 +26,12 @@ export const globalSearch = async (req, res) => {
       blogs: {
         searchableFields: ["blogTitle", "blogDescription", "blog"],
         resultFields: ["_id", "blogTitle", "blogDescription",],
+        filter: {},
       },
       faqs: {
         searchableFields: ["question", "answer"],
         resultFields: ["_id", "question", "answer"],
+        filter: {},
       },
     };
 

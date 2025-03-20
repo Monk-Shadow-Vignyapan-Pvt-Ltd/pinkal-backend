@@ -1,7 +1,7 @@
 import express from "express";
-import { addService, getServices,searchServices, getServiceById,getServiceByUrl,getServicesByCategory, deleteService, updateService,
-    onOffService,getServicesFrontend,getServicesBeforeAfter,cloneService,addServiceRanking,getServiceRanking,getServicesAfterRanking,
-    addServiceInSearch,getServiceInSearch,getServicesAfterInSearch} from "../controllers/service.controller.js";
+import { addService, getServices,getEnabledServices,searchServices, getServiceById,getServiceByUrl,getServicesByCategory,
+     deleteService, updateService,onOffService,getServicesFrontend,getServicesBeforeAfter,cloneService,addServiceRanking,
+     getServiceRanking,getServicesAfterRanking,addServiceInSearch,getServiceInSearch,getServicesAfterInSearch,} from "../controllers/service.controller.js";
 import isAuthenticated from "../auth/isAuthenticated.js";
 import { singleUpload } from "../middleware/multer.js";
 
@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.route("/addService").post( addService);
 router.route("/getServices").get( getServices);
+router.route("/getEnabledServices").get( getEnabledServices);
 router.route("/searchServices").post( searchServices);
 router.route("/getServiceById/:id").put( getServiceById);
 router.route("/getServiceByUrl/:id").put( getServiceByUrl);

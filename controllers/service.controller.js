@@ -153,6 +153,45 @@ export const getServices = async (req, res) => {
     }
 };
 
+export const getEnabledServices = async (req, res) => {
+    try {
+        // Fetch only enabled services
+        const services = await Service.find({ serviceEnabled: true })
+            .select('serviceName serviceUrl serviceDescription serviceImage categoryId serviceType serviceEnabled')
+            .populate('categoryId');
+
+        if (!services.length) {
+            return res.status(404).json({ message: 'No enabled services found', success: false });
+        }
+
+        // Reverse order for latest-first
+        const reversedServices = services.reverse();
+        const page = parseInt(req.query.page) || 1;
+        const limit = 12;
+
+        // Calculate pagination indices
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+
+        // Paginate the reversed array
+        const paginatedServices = reversedServices.slice(startIndex, endIndex);
+
+        res.status(200).json({ 
+            services: paginatedServices, 
+            success: true,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(services.length / limit),
+                totalServices: services.length,
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching enabled services:', error);
+        res.status(500).json({ message: 'Failed to fetch enabled services', success: false });
+    }
+};
+
+
 export const searchServices = async (req, res) => {
     try {
         const { search } = req.query;

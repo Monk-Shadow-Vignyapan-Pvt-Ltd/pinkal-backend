@@ -79,6 +79,8 @@ app.use("/api/v1/newsletters", routes.newsletterRoute);
 app.use("/api/v1/globals", routes.globalSearchRoute);
 app.use("/api/v1/gallaries", routes.gallaryRoute);
 app.use("/api/v1/sales", routes.saleRoute);
+app.use("/api/v1/teams", routes.teamRoute);
+app.use("/api/v1/prices", routes.priceRoute);
 
 app.listen(PORT, () => {
     console.log(`server running at port ${PORT}`);

@@ -18,6 +18,7 @@ import gallaryRoute from "./gallary.route.js";
 import saleRoute from "./sale.route.js";
 import teamRoute from "./team.route.js";
 import priceRoute from "./price.route.js";
+import popupRoute from "./popup.route.js";
 
 const routes = {
   categoryRoute,
@@ -39,7 +40,8 @@ const routes = {
   gallaryRoute,
   saleRoute,
   teamRoute,
-  priceRoute
+  priceRoute,
+  popupRoute
 };
 
 export default routes;

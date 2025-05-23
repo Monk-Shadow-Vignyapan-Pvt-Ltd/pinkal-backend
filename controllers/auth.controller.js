@@ -233,7 +233,7 @@ export const generateSitemap = async (req = null, res = null) => {
     const urls = [
       { url: "/", changefreq: "daily", priority: 1.0 },
       { url: "/privacy-policy", changefreq: "monthly", priority: 0.7 },
-      ...dynamicRoutes.map(route => ({ url: route, changefreq: "weekly", priority: 0.8 })),
+      ...dynamicRoutes.map(route => ({ url: route, changefreq: "daily", priority: 0.8 })),
     ];
 
     // Generate XML Sitemap

@@ -42,16 +42,46 @@ export const addBlog = async (req, res) => {
 
 // Get all blogs
 export const getBlogs = async (req, res) => {
-    try {
-        const blogs = await Blog.find();
-        if (!blogs ) {
-            return res.status(404).json({ message: "No blogs found", success: false });
-        }
-        return res.status(200).json({ blogs, success: true });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: 'Failed to fetch blogs', success: false });
+  try {
+    const { page = 1, search = "", } = req.query;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    // Create a search filter
+    const searchFilter = {};
+
+    // Apply search filter
+    if (search) {
+      searchFilter.$or = [
+        { blogTitle: { $regex: search, $options: "i" } },
+        { blogDescription: { $regex: search, $options: "i" } }
+      ];
     }
+
+    // Fetch all matching products (without pagination)
+    const allBlogs = await Blog.find(searchFilter);
+
+    // Apply pagination
+    const paginatedBlogs = await Blog.find(searchFilter)
+      .sort({ _id: -1 }) // Sort newest first
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      blogs: paginatedBlogs,
+      success: true,
+      pagination: {
+        currentPage: Number(page),
+        totalPages: Math.ceil(allBlogs.length / limit),
+        totalBlogs: allBlogs.length,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch blogs", success: false });
+  }
 };
 
 // Get blog by ID
@@ -131,16 +161,36 @@ export const updateBlog = async (req, res) => {
 };
 
 export const getBlogsFrontend = async (req, res) => {
-    try {
-        const blogs = await Blog.find()
-        .select('blogUrl')
-        if (!blogs) return res.status(404).json({ message: "Blogs not found", success: false });
-        return res.status(200).json({ blogs });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: 'Failed to fetch blogs', success: false });
-    }
+  try {
+    const page = Math.max(1, parseInt(req.query.page)) || 1;
+    const limit = 9;
+    const skip = (page - 1) * limit;
+
+    const filter = {}; // Add filtering logic here if needed
+
+    const totalBlogs = await Blog.countDocuments(filter);
+
+    const blogs = await Blog.find(filter)
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(); // optional
+
+    res.status(200).json({
+      success: true,
+      blogs,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalBlogs / limit),
+        totalBlogs,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
+    res.status(500).json({ message: "Failed to fetch blogs", success: false });
+  }
 };
+
 
 // Delete blog by ID
 export const deleteBlog = async (req, res) => {

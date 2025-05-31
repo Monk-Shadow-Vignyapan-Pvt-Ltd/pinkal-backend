@@ -163,7 +163,7 @@ export const updateBlog = async (req, res) => {
 export const getBlogsFrontend = async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page)) || 1;
-    const limit = 9;
+    const limit = 10;
     const skip = (page - 1) * limit;
     const tagID = req.query.tagID;
 

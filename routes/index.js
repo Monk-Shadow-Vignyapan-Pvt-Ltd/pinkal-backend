@@ -19,6 +19,7 @@ import saleRoute from "./sale.route.js";
 import teamRoute from "./team.route.js";
 import priceRoute from "./price.route.js";
 import popupRoute from "./popup.route.js";
+import tagRoute from "./tag.route.js";
 
 const routes = {
   categoryRoute,
@@ -41,7 +42,8 @@ const routes = {
   saleRoute,
   teamRoute,
   priceRoute,
-  popupRoute
+  popupRoute,
+  tagRoute
 };
 
 export default routes;

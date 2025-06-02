@@ -9,6 +9,7 @@ import fs from "fs";
 import path from "path";
 import cron from "node-cron";
 import { generateSitemap} from "./controllers/auth.controller.js";
+import { generateRedirectHTMLFiles} from "./controllers/auth.controller.js";
 
 // const sitemapPath = "../pinkal-frontend/dist/sitemap.xml";
 // const sitemapHTMLPath = "../pinkal-frontend/dist/sitemap.html";
@@ -18,6 +19,7 @@ import { generateSitemap} from "./controllers/auth.controller.js";
 //   if (!fs.existsSync(sitemapPath) || !fs.existsSync(sitemapHTMLPath)) {
 //     console.log("⚠️ Sitemap files not found. Generating now...");
 //     await generateSitemap();
+//     await generateRedirectHTMLFiles();
 //   } else {
 //     console.log("✅ Sitemap files already exist.");
 //   }
@@ -29,6 +31,7 @@ import { generateSitemap} from "./controllers/auth.controller.js";
 //   cron.schedule("0 0 * * *", async () => {
 //     console.log("🕛 Running scheduled sitemap generation...");
 //     await generateSitemap();
+//     await generateRedirectHTMLFiles();
 //   });
 // });
 

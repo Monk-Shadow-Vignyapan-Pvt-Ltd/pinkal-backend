@@ -8,6 +8,7 @@ import { Blog } from '../models/blog.model.js';
 import { Seo } from '../models/seo.model.js';
 import path from "path";
 import fs from "fs";
+import { Category } from '../models/category.model.js';
 
 // Signup Controller
 export const addUser = async (req, res) => {
@@ -209,6 +210,7 @@ const getDynamicRoutes = async () => {
       const subServices = await SubService.find().select('subServiceUrl subServiceEnabled');
       const blogs = await Blog.find().select('blogUrl');
       const seoEntries = await Seo.find();
+      const categories = await Category.find().select('categoryUrl');
 
       const enabledServices = services?.filter(service => service.serviceEnabled)
       const enabledSubServices = subServices?.filter(subService => subService.subServiceEnabled)
@@ -218,8 +220,9 @@ const getDynamicRoutes = async () => {
       const subServiceRoutes = enabledSubServices?.map(subService => `/sub-service/${subService.subServiceUrl}`) || [];
       const blogRoutes = blogs?.map(blog => `/blog-detail/${blog.blogUrl}`) || [];
       const seoRoutes = seoEntries?.map(seo => `/${seo.seoUrl}`) || [];
+      const categoryRoutes = categories?.map(cat => `/category/${cat.categoryUrl}`) || [];
 
-      return [...serviceRoutes, ...subServiceRoutes, ...blogRoutes, ...seoRoutes];
+      return [...serviceRoutes, ...subServiceRoutes, ...blogRoutes, ...seoRoutes,...categoryRoutes];
   } catch (error) {
       console.error("Error fetching dynamic routes:", error);
       return [];
@@ -295,5 +298,159 @@ export const generateSitemap = async (req = null, res = null) => {
     console.error("Error generating sitemap:", error);
     res.status(500).json({ message: "Failed to generate sitemap", success: false });
   }
+};
+
+const publicDir = path.resolve('../pinkal-frontend/dist/share'); // Output folder
+
+// Helper to sanitize filename if needed (for windows etc)
+const sanitizeFilename = (name) =>
+  name.replace(/\//g, '__').replace(/[\\?%*:|"<>]/g, '-');
+
+// Main function to generate HTML redirect files with SEO meta for each route
+export const generateRedirectHTMLFiles = async () => {
+  try {
+    // Fetch data
+    const services = await Service.find().select('serviceUrl serviceEnabled seoTitle seoDescription');
+    const subServices = await SubService.find().select('subServiceUrl subServiceEnabled seoTitle seoDescription');
+    const blogs = await Blog.find().select('blogUrl seoTitle seoDescription');
+    const seos = await Seo.find();
+    const categories = await Category.find().select('categoryUrl seoTitle seoDescription');
+
+    // Filter enabled entries
+    const enabledServices = services?.filter(service => service.serviceEnabled)
+    const enabledSubServices = subServices?.filter(subService => subService.subServiceEnabled)
+
+    // Build entries for products
+    const serviceEntries = enabledServices.map(p => ({
+      urlPath: `service/${p.serviceUrl}`,
+      title: p.seoTitle || 'Sevice',
+      description: p.seoDescription || '',
+      image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${p._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+    }));
+
+     const subServiceEntries = enabledSubServices.map(p => ({
+      urlPath: `sub-service/${p.subServiceUrl}`,
+      title: p.seoTitle || 'SubSevice',
+      description: p.seoDescription || '',
+      image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${p._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+    }));
+
+    // Build entries for categories
+    const categoryEntries = categories.map(c => ({
+      urlPath: `category/${c.categoryUrl}`,
+      title: c.seoTitle || 'Category',
+      description: c.seoDescription || '',
+      image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${c._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+    }));
+
+    // Build entries for seos
+    const seoEntries = seos.map(s => ({
+      urlPath: s.seoUrl,
+      title: s.seoTitle || '',
+      description: s.seoDescription || '',
+      image:  'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+    }));
+
+    // Build entries for blogs
+    const blogEntries = blogs.map(b => ({
+      urlPath: `blog/${b.blogUrl}`,
+      title: b.seoTitle || 'Blog',
+      description: b.seoDescription || '',
+      image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${b._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+    }));
+
+    const allEntries = [...serviceEntries, ...subServiceEntries, ...categoryEntries,...seoEntries, ...blogEntries];
+
+    // Ensure output directory exists
+    if (fs.existsSync(publicDir)) {
+        fs.rmSync(publicDir, { recursive: true, force: true }); // Delete the folder and all its contents
+      }
+      fs.mkdirSync(publicDir, { recursive: true });
+
+    // Generate one HTML file per entry
+    for (const entry of allEntries) {
+      const htmlContent = `<title>${entry.title}</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="title" content="${entry.title}" />
+  <meta name="description" content="${entry.description}" />
+  <link rel="canonical" href="https://cubigfurniture.com/${entry.urlPath}" />
+
+  <!-- Open Graph Tags -->
+  <meta property="og:title" content="${entry.title}" />
+  <meta property="og:description" content="${entry.description}" />
+  <meta property="og:image" content="${entry.image}" />
+  <meta property="og:url" content="https://cubigfurniture.com/${entry.urlPath}" />
+  <meta property="og:type" content="website" />
+
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:title" content="${entry.title}" />
+  <meta name="twitter:description" content="${entry.description}" />
+  <meta name="twitter:image" content="${entry.image}" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+`;
+
+      // Save the file: e.g. public_html/dist/share/products-meta-url.html
+      const filename = sanitizeFilename(entry.urlPath) + '.html';
+      const filepath = path.join(publicDir, filename);
+      fs.writeFileSync(filepath, htmlContent, 'utf8');
+    }
+
+    console.log(`Generated ${allEntries.length} redirect HTML files in ${publicDir}`);
+  } catch (error) {
+    console.error('Error generating redirect HTML files:', error);
+  }
+};
+
+export const getImageUrl = async (req, res) => {
+  try {
+    const imageId = req.params.id;
+
+    // Then try Category
+    const category = await Category.findById(imageId).select("categoryImage");
+    if (category?.categoryImage) {
+      return sendBase64Image(category.categoryImage, res);
+    }
+
+    // Try Service first
+    const service = await Service.findById(imageId).select("serviceImage");
+    if (service?.serviceImage) {
+      return sendBase64Image(service.serviceImage, res);
+    }
+
+    // Try SubService first
+    const subService = await SubService.findById(imageId).select("subServiceImage");
+    if (subService?.subServiceImage) {
+      return sendBase64Image(subService.subServiceImage, res);
+    }
+
+    // Then try Blog
+    const blog = await Blog.findById(imageId).select("blogImage");
+    if (blog?.blogImage) {
+      return sendBase64Image(blog.blogImage, res);
+    }
+
+    // If none found
+    return res.status(404).send('Image not found');
+  } catch (err) {
+    console.error('Image route error:', err);
+    res.status(500).send('Error loading image');
+  }
+};
+
+// Helper function to send base64 image
+const sendBase64Image = (base64Image, res) => {
+  const matches = base64Image.match(/^data:(.+);base64,(.+)$/);
+  if (!matches) {
+    return res.status(400).send('Invalid image format');
+  }
+
+  const mimeType = matches[1];
+  const base64Data = matches[2];
+  const buffer = Buffer.from(base64Data, 'base64');
+
+  res.set('Content-Type', mimeType);
+  return res.send(buffer);
 };
 

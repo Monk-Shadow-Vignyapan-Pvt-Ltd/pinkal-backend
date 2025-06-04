@@ -6,7 +6,7 @@ import sharp from 'sharp';
 // Add a new subservice
 export const addSubService = async (req, res) => {
     try {
-        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,subServiceUrl,seoTitle,seoDescription,userId } = req.body;
+        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,subServiceUrl,seoTitle,seoDescription,schema,userId } = req.body;
 
         // Validate base64 image data
         if (!subServiceImage || !subServiceImage.startsWith('data:image')) {
@@ -92,7 +92,7 @@ export const addSubService = async (req, res) => {
             others,
             serviceId,
             subServiceEnabled,
-            subServiceUrl,seoTitle,seoDescription,
+            subServiceUrl,seoTitle,seoDescription,schema,
             userId
         });
 
@@ -231,7 +231,7 @@ export const getSubServicesByServiceId = async (req, res) => {
 export const updateSubService = async (req, res) => {
     try {
         const { id } = req.params;
-        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,subServiceUrl,seoTitle,seoDescription,userId } = req.body;
+        let { subServiceName, subServiceDescription, subServiceImage, howWorks,howWorksName,beforeAfterGallary = [], others, serviceId, subServiceEnabled,subServiceUrl,seoTitle,seoDescription,schema,userId } = req.body;
 
         const existingSubService = await SubService.findById(id);
                 if (!existingSubService) {
@@ -328,7 +328,7 @@ export const updateSubService = async (req, res) => {
             others,
             serviceId,
             subServiceEnabled,
-            subServiceUrl,seoTitle,seoDescription,
+            subServiceUrl,seoTitle,seoDescription,schema,
             userId,
             oldUrls
         };
@@ -364,7 +364,8 @@ export const onOffSubService = async (req, res) => {
             seoTitle:existingSubService.seoTitle,
             seoDescription:existingSubService.seoDescription,
             userId:existingSubService.userId,
-            oldUrls:existingSubService.oldUrls
+            oldUrls:existingSubService.oldUrls,
+            schema:existingSubService.schema
         };
 
         const subService = await SubService.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });

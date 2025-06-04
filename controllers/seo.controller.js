@@ -7,7 +7,7 @@ import { SubService } from '../models/sub_service.model.js';
 // Add a new SEO entry
 export const addSeo = async (req, res) => {
     try {
-        const { pageName, seoTitle, seoDescription, blogOrServiceId, seoUrl } = req.body;
+        const { pageName, seoTitle, seoDescription, blogOrServiceId, seoUrl,schema } = req.body;
 
         // Validate required fields
         if (!pageName || !seoTitle || !seoUrl) {
@@ -34,7 +34,7 @@ export const addSeo = async (req, res) => {
                 existingSeo.blogOrServiceId = blogOrServiceId;
                 existingSeo.seoUrl = urlFriendlySeoUrl;
                 existingSeo.oldUrls = oldUrls;
-    
+                existingSeo.schema = schema;
                 // Save the updated contact
                 //await existingSeo.save();
                 const updatedSeo = await Seo.findByIdAndUpdate(existingSeo._id, existingSeo, { new: true, runValidators: true });
@@ -50,7 +50,7 @@ export const addSeo = async (req, res) => {
             pageName,
             seoTitle,
             seoDescription,
-            seoUrl: urlFriendlySeoUrl,  // Use the cleaned, URL-friendly seoUrl
+            seoUrl: urlFriendlySeoUrl,schema,  // Use the cleaned, URL-friendly seoUrl
             blogOrServiceId
         });
 
@@ -132,7 +132,7 @@ export const getSeoByPageName = async (req, res) => {
 export const updateSeo = async (req, res) => {
     try {
         const { id } = req.params;
-        const { pageName,seoTitle, seoDescription,blogOrServiceId, seoUrl } = req.body;
+        const { pageName,seoTitle, seoDescription,blogOrServiceId, seoUrl ,schema} = req.body;
 
         // Validate required fields
         if (!pageName || !seoTitle || !seoUrl) {
@@ -145,6 +145,7 @@ export const updateSeo = async (req, res) => {
             ...(seoDescription && { seoDescription }),
             ...(blogOrServiceId && { blogOrServiceId }),
             ...(seoUrl && { seoUrl }),
+            ...(schema && { schema }),
         };
 
         const seoEntry = await Seo.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });

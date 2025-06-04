@@ -9,7 +9,7 @@ import sharp from 'sharp';
 // Add a new service
 export const addService = async (req, res) => {
     try {
-        let { serviceName, serviceDescription, serviceImage,serviceType, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,serviceUrl,seoTitle,seoDescription, userId} = req.body;
+        let { serviceName, serviceDescription, serviceImage,serviceType, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,serviceUrl,seoTitle,seoDescription,schema, userId} = req.body;
         
         // Validate base64 image data
         if (!serviceImage || !serviceImage.startsWith('data:image') ) {
@@ -99,7 +99,7 @@ export const addService = async (req, res) => {
             categoryId,
             serviceEnabled,
             serviceUrl,
-            seoTitle,seoDescription,
+            seoTitle,seoDescription,schema,
             userId
         });
 
@@ -277,7 +277,7 @@ export const getServicesByCategory = async (req, res) => {
 export const updateService = async (req, res) => {
     try {
         const { id } = req.params;
-        let { serviceName, serviceDescription, serviceImage,serviceType, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,serviceUrl,seoTitle,seoDescription,userId } = req.body;
+        let { serviceName, serviceDescription, serviceImage,serviceType, whyChoose,whyChooseName, howWorks,howWorksName,beforeAfterGallary = [], others, categoryId, serviceEnabled,serviceUrl,seoTitle,seoDescription,schema,userId } = req.body;
          
         const existingService = await Service.findById(id);
         if (!existingService) {
@@ -375,7 +375,7 @@ export const updateService = async (req, res) => {
             others,
             categoryId,
             serviceEnabled,
-            serviceUrl,seoTitle,seoDescription,
+            serviceUrl,seoTitle,seoDescription,schema,
             userId,
             oldUrls 
         };
@@ -414,7 +414,8 @@ export const onOffService = async (req, res) => {
             seoTitle:existingService.seoTitle,
             seoDescription:existingService.seoDescription,
             userId:existingService.userId,
-            oldUrls:existingService.oldUrls
+            oldUrls:existingService.oldUrls,
+            schema:existingService.schema
         };
 
         const service = await Service.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });

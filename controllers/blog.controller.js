@@ -4,7 +4,7 @@ import sharp from 'sharp';
 // Add a new Blog
 export const addBlog = async (req, res) => {
     try {
-        const { content,blogTitle,blogImage,blogDescription,blogUrl,seoTitle,seoDescription,userId,tags } = req.body;
+        const { content,blogTitle,blogImage,blogDescription,blogUrl,seoTitle,seoDescription,schema,userId,tags } = req.body;
         // Validate blog content (e.g., check for base64 image or URL)
         if (!content || typeof content !== 'string') {
             return res.status(400).json({ message: 'Invalid blog content', success: false });
@@ -29,7 +29,7 @@ export const addBlog = async (req, res) => {
             blogImage:compressedBase64,
             userId,
             blog:content,  // Store the blog data (could be an image or text)
-            blogUrl,seoTitle,seoDescription,tags
+            blogUrl,seoTitle,seoDescription,tags,schema
         });
 
         await newBlog.save();
@@ -115,7 +115,7 @@ export const getBlogByUrl = async (req, res) => {
 export const updateBlog = async (req, res) => {
     try {
         const { id } = req.params;
-        const { content,blogTitle,blogImage,blogDescription,blogUrl,seoTitle,seoDescription,userId ,tags} = req.body;
+        const { content,blogTitle,blogImage,blogDescription,blogUrl,seoTitle,seoDescription,userId ,tags,schema} = req.body;
 
         const existingBlog = await Blog.findById(id);
                         if (!existingBlog) {
@@ -147,7 +147,7 @@ export const updateBlog = async (req, res) => {
 
         const updatedData = { blog:content,blogTitle,
             blogDescription,
-            blogImage:compressedBase64,userId, blogUrl,oldUrls,seoTitle,seoDescription,tags};
+            blogImage:compressedBase64,userId, blogUrl,oldUrls,seoTitle,seoDescription,tags,schema};
 
         const updatedBlog = await Blog.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
         if (!updatedBlog) {

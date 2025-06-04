@@ -22,6 +22,10 @@ const seoSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
+      schema: {
+      type: String, // Store image as base64 or use a URL reference
+      required: false,
+    },
        oldUrls: {
               type: mongoose.Schema.Types.Mixed,  // Use Mixed for flexible structure (JSON-like object)
               required: false

@@ -7,7 +7,7 @@ import sharp from 'sharp';
 export const addCategory = async (req, res) => {
     try {
         const { categoryName,categoryDescription,rank, imageBase64,userId, categoryUrl,
-            seoTitle,seoDescription, } = req.body;
+            seoTitle,seoDescription,schema } = req.body;
         // Validate base64 image data
         if (!imageBase64 || !imageBase64.startsWith('data:image')) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
@@ -32,7 +32,7 @@ export const addCategory = async (req, res) => {
             categoryDescription:req.body.description,
             userId:req.body.userId,
             categoryUrl,
-            seoTitle,seoDescription,
+            seoTitle,seoDescription,schema,
             rank
         });
 
@@ -74,7 +74,7 @@ export const updateCategory = async (req, res) => {
     try {
         const { id } = req.params;
         const { categoryName, imageBase64,rank, categoryDescription,userId,categoryUrl,
-            seoTitle,seoDescription, } = req.body;
+            seoTitle,seoDescription, schema} = req.body;
 
         const existingCategory = await Category.findById(id);
                 if (!existingCategory) {
@@ -111,7 +111,7 @@ export const updateCategory = async (req, res) => {
             rank,
             categoryUrl,
             oldUrls,
-            seoTitle,seoDescription,
+            seoTitle,seoDescription,schema,
             ...(compressedBase64 && { categoryImage: compressedBase64 }) // Only update image if new image is provided
         };
 

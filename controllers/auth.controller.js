@@ -326,6 +326,7 @@ export const generateRedirectHTMLFiles = async () => {
       title: p.seoTitle || 'Sevice',
       description: p.seoDescription || '',
       image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${p._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+      schema:p.schema || ""
     }));
 
      const subServiceEntries = enabledSubServices.map(p => ({
@@ -333,6 +334,7 @@ export const generateRedirectHTMLFiles = async () => {
       title: p.seoTitle || 'SubSevice',
       description: p.seoDescription || '',
       image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${p._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+      schema:p.schema || ""
     }));
 
     // Build entries for categories
@@ -341,6 +343,7 @@ export const generateRedirectHTMLFiles = async () => {
       title: c.seoTitle || 'Category',
       description: c.seoDescription || '',
       image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${c._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+      schema:c.schema || ""
     }));
 
     // Build entries for seos
@@ -349,6 +352,7 @@ export const generateRedirectHTMLFiles = async () => {
       title: s.seoTitle || '',
       description: s.seoDescription || '',
       image:  'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+      schema:s.schema || ""
     }));
 
     // Build entries for blogs
@@ -357,6 +361,7 @@ export const generateRedirectHTMLFiles = async () => {
       title: b.seoTitle || 'Blog',
       description: b.seoDescription || '',
       image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${b._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+      schema:b.schema || ""
     }));
 
     const allEntries = [...serviceEntries, ...subServiceEntries, ...categoryEntries,...seoEntries, ...blogEntries];
@@ -388,6 +393,8 @@ export const generateRedirectHTMLFiles = async () => {
   <meta name="twitter:description" content="${entry.description}" />
   <meta name="twitter:image" content="${entry.image}" />
   <meta name="twitter:card" content="summary_large_image" />
+
+  ${entry.schema ? `<script type="application/ld+json">${entry.schema}</script>` : ''}
 
 `;
 

@@ -379,13 +379,13 @@ export const generateRedirectHTMLFiles = async () => {
   <!-- SEO Meta Tags -->
   <meta name="title" content="${entry.title}" />
   <meta name="description" content="${entry.description}" />
-  <link rel="canonical" href="https://cubigfurniture.com/${entry.urlPath}" />
+  <link rel="canonical" href=${entry.urlPath === 'home' ? "https://pinkalhealth.com" :"https://pinkalhealth.com/${entry.urlPath}" } />
 
   <!-- Open Graph Tags -->
   <meta property="og:title" content="${entry.title}" />
   <meta property="og:description" content="${entry.description}" />
   <meta property="og:image" content="${entry.image}" />
-  <meta property="og:url" content="https://cubigfurniture.com/${entry.urlPath}" />
+  <meta property="og:url" content=${entry.urlPath === 'home' ? "https://pinkalhealth.com" :"https://pinkalhealth.com/${entry.urlPath}" } />
   <meta property="og:type" content="website" />
 
   <!-- Twitter Card Tags -->

@@ -23,7 +23,7 @@ export const addSeo = async (req, res) => {
             .replace(/-+/g, '-');               // Replace multiple hyphens with a single hyphen
 
         const existingSeo = await Seo.findOne({ pageName });
-            let oldUrls = existingSeo.oldUrls || [];
+            let oldUrls = existingSeo.oldUrls ?  existingSeo.oldUrls : [];
             if (existingSeo) {
                 if (existingSeo.seoUrl && existingSeo.seoUrl !== urlFriendlySeoUrl && !oldUrls.includes(existingSeo.seoUrl)) {
                    await oldUrls.push(existingSeo.seoUrl);

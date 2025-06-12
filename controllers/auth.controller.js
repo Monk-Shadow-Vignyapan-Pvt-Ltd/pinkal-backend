@@ -380,6 +380,7 @@ export const generateRedirectHTMLFiles = async () => {
   <meta name="title" content="${entry.title}" />
   <meta name="description" content="${entry.description}" />
   <link rel="canonical" href="${entry.urlPath === 'home' ? 'https://pinkalhealth.com' : `https://pinkalhealth.com/${entry.urlPath}`}" />
+  <meta name="robots" content="index, follow" />
 
   <!-- Open Graph Tags -->
   <meta property="og:title" content="${entry.title}" />

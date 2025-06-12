@@ -411,6 +411,111 @@ export const generateRedirectHTMLFiles = async () => {
   }
 };
 
+export const generateRedirectHTMLFilesAdmin = async (req,res) => {
+  try {
+    // Fetch data
+    const services = await Service.find().select('serviceUrl serviceEnabled seoTitle seoDescription');
+    const subServices = await SubService.find().select('subServiceUrl subServiceEnabled seoTitle seoDescription');
+    const blogs = await Blog.find().select('blogUrl seoTitle seoDescription');
+    const seos = await Seo.find();
+    const categories = await Category.find().select('categoryUrl seoTitle seoDescription');
+
+    // Filter enabled entries
+    const enabledServices = services?.filter(service => service.serviceEnabled)
+    const enabledSubServices = subServices?.filter(subService => subService.subServiceEnabled)
+
+    // Build entries for products
+    const serviceEntries = enabledServices.map(p => ({
+      urlPath: `service/${p.serviceUrl}`,
+      title: p.seoTitle || 'Sevice',
+      description: p.seoDescription || '',
+      image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${p._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+      schema:p.schema || ""
+    }));
+
+     const subServiceEntries = enabledSubServices.map(p => ({
+      urlPath: `sub-service/${p.subServiceUrl}`,
+      title: p.seoTitle || 'SubSevice',
+      description: p.seoDescription || '',
+      image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${p._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+      schema:p.schema || ""
+    }));
+
+    // Build entries for categories
+    const categoryEntries = categories.map(c => ({
+      urlPath: `category/${c.categoryUrl}`,
+      title: c.seoTitle || 'Category',
+      description: c.seoDescription || '',
+      image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${c._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+      schema:c.schema || ""
+    }));
+
+    // Build entries for seos
+    const seoEntries = seos.map(s => ({
+      urlPath: s.seoUrl,
+      title: s.seoTitle || '',
+      description: s.seoDescription || '',
+      image:  'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+      schema:s.schema || ""
+    }));
+
+    // Build entries for blogs
+    const blogEntries = blogs.map(b => ({
+      urlPath: `blog/${b.blogUrl}`,
+      title: b.seoTitle || 'Blog',
+      description: b.seoDescription || '',
+      image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${b._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+      schema:b.schema || ""
+    }));
+
+    const allEntries = [...serviceEntries, ...subServiceEntries, ...categoryEntries,...seoEntries, ...blogEntries];
+
+    // Ensure output directory exists
+    if (fs.existsSync(publicDir)) {
+        fs.rmSync(publicDir, { recursive: true, force: true }); // Delete the folder and all its contents
+      }
+      fs.mkdirSync(publicDir, { recursive: true });
+
+    // Generate one HTML file per entry
+    for (const entry of allEntries) {
+      const htmlContent = `<title>${entry.title}</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="title" content="${entry.title}" />
+  <meta name="description" content="${entry.description}" />
+  <link rel="canonical" href="${entry.urlPath === 'home' ? 'https://pinkalhealth.com' : `https://pinkalhealth.com/${entry.urlPath}`}" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+  <!-- Open Graph Tags -->
+  <meta property="og:title" content="${entry.title}" />
+  <meta property="og:description" content="${entry.description}" />
+  <meta property="og:image" content="${entry.image}" />
+  <meta property="og:url" content="${entry.urlPath === 'home' ? 'https://pinkalhealth.com' : `https://pinkalhealth.com/${entry.urlPath}`}" />
+  <meta property="og:type" content="website" />
+
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:title" content="${entry.title}" />
+  <meta name="twitter:description" content="${entry.description}" />
+  <meta name="twitter:image" content="${entry.image}" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  ${entry.schema ? `<script type="application/ld+json">${entry.schema}</script>` : ''}
+
+`;
+
+      // Save the file: e.g. public_html/dist/share/products-meta-url.html
+      const filename = sanitizeFilename(entry.urlPath) + '.html';
+      const filepath = path.join(publicDir, filename);
+      fs.writeFileSync(filepath, htmlContent, 'utf8');
+    }
+
+    console.log(`Generated ${allEntries.length} redirect HTML files in ${publicDir}`);
+    res.status(200).json({ message: 'seo Updated successfully', itemCount: allEntries.length });
+  } catch (error) {
+    console.error('Error generating redirect HTML files:', error);
+  }
+};
+
 export const getImageUrl = async (req, res) => {
   try {
     const imageId = req.params.id;

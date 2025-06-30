@@ -1,5 +1,6 @@
 import { Contact } from '../models/contact.model.js'; // Adjust path based on your file structure
 import nodemailer from 'nodemailer';
+import ExcelJS from 'exceljs';
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -148,6 +149,74 @@ export const getContacts = async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to fetch contacts", success: false });
+  }
+};
+
+export const downloadContactsExcel = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    // Validate required date fields
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        message: 'Please provide startDate and endDate in query params (YYYY-MM-DD)',
+        success: false
+      });
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999); // Include end of the day
+
+    // Fetch contacts within the date range
+    const contacts = await Contact.find({
+      createdAt: { $gte: start, $lte: end }
+    }).sort({ createdAt: -1 });
+
+    if (contacts.length === 0) {
+      return res.status(404).json({ message: 'No contacts found in this date range', success: false });
+    }
+
+    // Create Excel workbook
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Contacts');
+
+    // Add header row
+    worksheet.columns = [
+      { header: 'Name', key: 'name', width: 20 },
+      { header: 'Phone', key: 'phone', width: 15 },
+      { header: 'Email', key: 'email', width: 25 },
+      { header: 'Subject', key: 'subject', width: 25 },
+      { header: 'Message', key: 'message', width: 40 },
+      { header: 'Is Contact Closed', key: 'isContactClose', width: 18 },
+      { header: 'User ID', key: 'userId', width: 24 },
+      { header: 'Created At', key: 'createdAt', width: 20 }
+    ];
+
+    // Add data rows
+    contacts.forEach(contact => {
+      worksheet.addRow({
+        name: contact.name,
+        phone: contact.phone,
+        email: contact.email,
+        subject: contact.subject,
+        message: contact.message,
+        isContactClose: contact.isContactClose ? 'Yes' : 'No',
+        userId: contact.userId || '',
+        createdAt: contact.createdAt.toISOString().split('T')[0]
+      });
+    });
+
+    // Set response headers
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename=contacts_${startDate}_to_${endDate}.xlsx`);
+
+    // Write to response stream
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error('Error generating Excel:', error);
+    res.status(500).json({ message: 'Failed to generate Excel', success: false });
   }
 };
 

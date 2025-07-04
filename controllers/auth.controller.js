@@ -218,7 +218,7 @@ const getDynamicRoutes = async () => {
 
       const serviceRoutes = enabledServices?.map(service => `/service/${service.serviceUrl}`) || [];
       const subServiceRoutes = enabledSubServices?.map(subService => `/sub-service/${subService.subServiceUrl}`) || [];
-      const blogRoutes = blogs?.map(blog => `/blog-detail/${blog.blogUrl}`) || [];
+      const blogRoutes = blogs?.map(blog => `/blog/${blog.blogUrl}`) || [];
       const seoRoutes = seoEntries?.map(seo => `/${seo.seoUrl}`) || [];
       const categoryRoutes = categories?.map(cat => `/category/${cat.categoryUrl}`) || [];
 

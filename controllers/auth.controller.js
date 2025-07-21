@@ -414,11 +414,11 @@ export const generateRedirectHTMLFiles = async () => {
 export const generateRedirectHTMLFilesAdmin = async (req,res) => {
   try {
     // Fetch data
-    const services = await Service.find().select('serviceUrl serviceEnabled seoTitle seoDescription');
-    const subServices = await SubService.find().select('subServiceUrl subServiceEnabled seoTitle seoDescription');
-    const blogs = await Blog.find().select('blogUrl seoTitle seoDescription');
+    const services = await Service.find().select('serviceUrl schema serviceEnabled seoTitle seoDescription');
+    const subServices = await SubService.find().select('subServiceUrl schema subServiceEnabled seoTitle seoDescription');
+    const blogs = await Blog.find().select('blogUrl seoTitle schema seoDescription');
     const seos = await Seo.find();
-    const categories = await Category.find().select('categoryUrl seoTitle seoDescription');
+    const categories = await Category.find().select('categoryUrl seoTitle schema seoDescription');
 
     // Filter enabled entries
     const enabledServices = services?.filter(service => service.serviceEnabled)
@@ -427,7 +427,7 @@ export const generateRedirectHTMLFilesAdmin = async (req,res) => {
     // Build entries for products
     const serviceEntries = enabledServices.map(p => ({
       urlPath: `service/${p.serviceUrl}`,
-      title: p.seoTitle || 'Sevice',
+      title: p.seoTitle || 'Service',
       description: p.seoDescription || '',
       image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${p._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
       schema:p.schema || ""
@@ -435,7 +435,7 @@ export const generateRedirectHTMLFilesAdmin = async (req,res) => {
 
      const subServiceEntries = enabledSubServices.map(p => ({
       urlPath: `sub-service/${p.subServiceUrl}`,
-      title: p.seoTitle || 'SubSevice',
+      title: p.seoTitle || 'SubService',
       description: p.seoDescription || '',
       image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${p._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
       schema:p.schema || ""

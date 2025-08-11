@@ -452,7 +452,7 @@ export const generateRedirectHTMLFilesAdmin = async (req,res) => {
 
     // Build entries for seos
     const seoEntries = seos.map(s => ({
-      urlPath: s.seoUrl,
+      urlPath: (s.seoUrl === "home" || s.seoUrl === "Home") ? "": s.seoUrl,
       title: s.seoTitle || '',
       description: s.seoDescription || '',
       image:  'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',

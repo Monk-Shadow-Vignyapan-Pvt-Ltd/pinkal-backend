@@ -20,6 +20,7 @@ import teamRoute from "./team.route.js";
 import priceRoute from "./price.route.js";
 import popupRoute from "./popup.route.js";
 import tagRoute from "./tag.route.js";
+import eventRoute from "./event.route.js";
 
 const routes = {
   categoryRoute,
@@ -43,7 +44,8 @@ const routes = {
   teamRoute,
   priceRoute,
   popupRoute,
-  tagRoute
+  tagRoute,
+  eventRoute
 };
 
 export default routes;

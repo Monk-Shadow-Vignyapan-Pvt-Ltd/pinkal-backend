@@ -86,6 +86,7 @@ app.use("/api/v1/teams", routes.teamRoute);
 app.use("/api/v1/prices", routes.priceRoute);
 app.use("/api/v1/popups", routes.popupRoute);
 app.use("/api/v1/tags", routes.tagRoute);
+app.use("/api/v1/events", routes.eventRoute);
 
 app.listen(PORT, () => {
     console.log(`server running at port ${PORT}`);

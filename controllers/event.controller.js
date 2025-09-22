@@ -22,7 +22,7 @@ export const upsertEvent = async (req, res) => {
             const buffer = Buffer.from(base64Data, 'base64');
             const webpBuffer = await sharp(buffer)
                 .resize(800, 600, { fit: 'inside' }) // optional resize
-                .webp({ quality: 80 })
+                .webp({ quality: 95 })
                 .toBuffer();
             return `data:image/webp;base64,${webpBuffer.toString('base64')}`;
         };

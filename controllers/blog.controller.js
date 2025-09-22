@@ -211,3 +211,40 @@ export const deleteBlog = async (req, res) => {
         res.status(500).json({ message: 'Failed to delete blog', success: false });
     }
 };
+
+export const getRecentBlogs = async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page)) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+    const tagID = req.query.tagID;
+
+    const filter = {}; // Add filtering logic here if needed
+
+    if (tagID) {
+      filter["tags.value"] = tagID; // Check tagID in tags array
+    }
+
+    const totalBlogs = await Blog.countDocuments(filter);
+
+    const blogs = await Blog.find(filter).
+      select("blogTitle blogDescription blogUrl")
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(); // optional
+
+    res.status(200).json({
+      success: true,
+      blogs,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalBlogs / limit),
+        totalBlogs,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
+    res.status(500).json({ message: "Failed to fetch blogs", success: false });
+  }
+};

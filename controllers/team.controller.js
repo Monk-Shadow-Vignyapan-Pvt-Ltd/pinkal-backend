@@ -7,7 +7,7 @@ const compressImage = async (base64Image) => {
     const buffer = Buffer.from(base64Data, 'base64');
     const compressedBuffer = await sharp(buffer)
         .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
-        .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+        .jpeg({ quality: 95 }) // Convert to JPEG with 80% quality
         .toBuffer();
     return `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
 };

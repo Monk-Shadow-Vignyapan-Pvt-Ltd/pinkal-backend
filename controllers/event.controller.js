@@ -29,6 +29,8 @@ export const upsertEvent = async (req, res) => {
 
         if (image && image.startsWith('data:image')) {
             processedData.image = await compressToWebP(image);
+        } else {
+            processedData.image = ""; // save empty string if no image provided
         }
 
 

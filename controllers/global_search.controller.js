@@ -33,6 +33,11 @@ export const globalSearch = async (req, res) => {
         resultFields: ["_id", "question", "answer"],
         filter: {},
       },
+      trainings: {
+        searchableFields: ["trainingName", "trainingDescription", "others"],
+        resultFields: ["_id","trainingUrl", "trainingName", "trainingDescription",],
+        filter: { trainingEnabled: true },
+      },
     };
 
     const searchResults = {};

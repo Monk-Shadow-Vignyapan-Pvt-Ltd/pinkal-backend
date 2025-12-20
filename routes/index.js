@@ -21,6 +21,7 @@ import priceRoute from "./price.route.js";
 import popupRoute from "./popup.route.js";
 import tagRoute from "./tag.route.js";
 import eventRoute from "./event.route.js";
+import trainingRoute from "./training.route.js";
 
 const routes = {
   categoryRoute,
@@ -45,7 +46,8 @@ const routes = {
   priceRoute,
   popupRoute,
   tagRoute,
-  eventRoute
+  eventRoute,
+  trainingRoute
 };
 
 export default routes;

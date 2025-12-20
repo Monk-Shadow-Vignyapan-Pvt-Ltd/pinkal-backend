@@ -9,6 +9,7 @@ import { Seo } from '../models/seo.model.js';
 import path from "path";
 import fs from "fs";
 import { Category } from '../models/category.model.js';
+import { Training } from '../models/training.model.js';
 
 // Signup Controller
 export const addUser = async (req, res) => {
@@ -211,9 +212,11 @@ const getDynamicRoutes = async () => {
       const blogs = await Blog.find().select('blogUrl');
       const seoEntries = await Seo.find();
       const categories = await Category.find().select('categoryUrl');
+      const trainings = await Training.find().select('trainingUrl trainingEnabled');
 
       const enabledServices = services?.filter(service => service.serviceEnabled)
       const enabledSubServices = subServices?.filter(subService => subService.subServiceEnabled)
+      const enabledTrainings = trainings?.filter(training => training.trainingEnabled)
 
 
       const serviceRoutes = enabledServices?.map(service => `/service/${service.serviceUrl}`) || [];
@@ -221,8 +224,9 @@ const getDynamicRoutes = async () => {
       const blogRoutes = blogs?.map(blog => `/blog/${blog.blogUrl}`) || [];
       const seoRoutes = seoEntries?.map(seo => `/${seo.seoUrl}`) || [];
       const categoryRoutes = categories?.map(cat => `/category/${cat.categoryUrl}`) || [];
+      const trainingRoutes = enabledTrainings?.map(training => `/training/${training.trainingUrl}`) || [];
 
-      return [...serviceRoutes, ...subServiceRoutes, ...blogRoutes, ...seoRoutes,...categoryRoutes];
+      return [...serviceRoutes, ...subServiceRoutes, ...blogRoutes, ...seoRoutes,...categoryRoutes, ...trainingRoutes];
   } catch (error) {
       console.error("Error fetching dynamic routes:", error);
       return [];
@@ -315,10 +319,12 @@ export const generateRedirectHTMLFiles = async () => {
     const blogs = await Blog.find().select('blogUrl seoTitle seoDescription');
     const seos = await Seo.find();
     const categories = await Category.find().select('categoryUrl seoTitle seoDescription');
+    const trainings = await Training.find().select('trainingUrl trainingEnabled seoTitle seoDescription');
 
     // Filter enabled entries
     const enabledServices = services?.filter(service => service.serviceEnabled)
     const enabledSubServices = subServices?.filter(subService => subService.subServiceEnabled)
+    const enabledTrainings = trainings?.filter(training => training.trainingEnabled)
 
     // Build entries for products
     const serviceEntries = enabledServices.map(p => ({
@@ -364,7 +370,16 @@ export const generateRedirectHTMLFiles = async () => {
       schema:b.schema || ""
     }));
 
-    const allEntries = [...serviceEntries, ...subServiceEntries, ...categoryEntries,...seoEntries, ...blogEntries];
+    // Build entries for trainings
+    const trainingEntries = enabledTrainings.map(t => ({
+      urlPath: `training/${t.trainingUrl}`,
+      title: t.seoTitle || 'Training',
+      description: t.seoDescription || '',
+      image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${t._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+      schema:t.schema || ""
+    }));
+
+    const allEntries = [...serviceEntries, ...subServiceEntries, ...categoryEntries,...seoEntries, ...blogEntries, ...trainingEntries];
 
     // Ensure output directory exists
     if (fs.existsSync(publicDir)) {
@@ -419,10 +434,12 @@ export const generateRedirectHTMLFilesAdmin = async (req,res) => {
     const blogs = await Blog.find().select('blogUrl seoTitle schema seoDescription');
     const seos = await Seo.find();
     const categories = await Category.find().select('categoryUrl seoTitle schema seoDescription');
+    const trainings = await Training.find().select('trainingUrl schema trainingEnabled seoTitle seoDescription');
 
     // Filter enabled entries
     const enabledServices = services?.filter(service => service.serviceEnabled)
     const enabledSubServices = subServices?.filter(subService => subService.subServiceEnabled)
+    const enabledTrainings = trainings?.filter(training => training.trainingEnabled)
 
     // Build entries for products
     const serviceEntries = enabledServices.map(p => ({
@@ -468,7 +485,16 @@ export const generateRedirectHTMLFilesAdmin = async (req,res) => {
       schema:b.schema || ""
     }));
 
-    const allEntries = [...serviceEntries, ...subServiceEntries, ...categoryEntries,...seoEntries, ...blogEntries];
+    // Build entries for trainings
+    const trainingEntries = enabledTrainings.map(t => ({
+      urlPath: `training/${t.trainingUrl}`,
+      title: t.seoTitle || 'Training',
+      description: t.seoDescription || '',
+      image: `https://api.pinkalhealth.com/api/v1/auth/getImageUrl/${t._id}` || 'https://pinkalhealth.com/assets/pinkal-logo-Ccgegfq2.png',
+      schema:t.schema || ""
+    }));
+
+    const allEntries = [...serviceEntries, ...subServiceEntries, ...categoryEntries,...seoEntries, ...blogEntries, ...trainingEntries];
 
     // Ensure output directory exists
     if (fs.existsSync(publicDir)) {
@@ -543,6 +569,13 @@ export const getImageUrl = async (req, res) => {
     if (blog?.blogImage) {
       return sendBase64Image(blog.blogImage, res);
     }
+
+    // Then try Training
+    const training = await Training.findById(imageId).select("trainingImage");
+    if (training?.trainingImage) {
+      return sendBase64Image(training.trainingImage, res);
+    }
+    
 
     // If none found
     return res.status(404).send('Image not found');
